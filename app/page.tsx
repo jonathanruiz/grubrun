@@ -1,7 +1,7 @@
 const Home = () => {
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24">
-      <h2 className="text-4xl">Hello World!</h2>
+    <main className="flex min-h-screen flex-col justify-between p-24">
+      <h2 className="text-4xl">Create an order!</h2>
     </main>
   );
 };
