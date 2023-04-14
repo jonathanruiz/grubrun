@@ -1,3 +1,4 @@
+import Navigation from "./components/Navigation";
 import "./globals.css";
 
 export const metadata = {
@@ -8,7 +9,10 @@ export const metadata = {
 const RootLayout = ({ children }: { children: React.ReactNode }) => {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body>
+        <Navigation />
+        {children}
+      </body>
     </html>
   );
 };
