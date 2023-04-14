@@ -1,3 +1,3 @@
 # GrubRun
 
-This is a new application using Next.JS and WebSockets.
+GrubRun is an app that simplified bulk orders for restaurants.
