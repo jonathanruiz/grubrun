@@ -1,21 +1,40 @@
+"use client";
+
 import { useForm } from "react-hook-form";
 
 const NewOrder = () => {
-  // Create a form using react-hook-form that will ask for the following:
-  // 1. Your name
-  // 2. Your email
-  // 3. Max order size
-  // 4. When are you leaving?
-
-  // When the form is submitted, it should call the createOrder function
+  const createOrder = () => {
+    console.log("order created");
+  };
 
   const {
     handleSubmit,
+    register,
     watch,
     formState: { errors },
   } = useForm();
 
-  return <div>Form</div>;
+  return (
+    <form onSubmit={handleSubmit(createOrder)} className="">
+      <input
+        {...(register("name"), { required: true })}
+        placeholder="Full Name"
+      ></input>
+      <input
+        {...(register("email"), { required: true })}
+        placeholder="Email"
+      ></input>
+      <input
+        {...register("maxOrderSize")}
+        placeholder="Max # of Orders"
+      ></input>
+      <input
+        {...register("leaving")}
+        placeholder="What time are you leaving?"
+      ></input>
+      <button type="submit">Submit</button>
+    </form>
+  );
 };
 
 export default NewOrder;
