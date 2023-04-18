@@ -1,6 +1,15 @@
 "use client";
 
 import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z, ZodType } from "zod";
+
+const schema: ZodType = z.object({
+  name: z.string().min(2, { message: "Name requires at least 2 characters." }),
+  email: z.string().email(),
+  maxOrderSize: z.string().min(1).max(100),
+  departureTime: z.string().min(1).max(60),
+});
 
 const NewOrder = () => {
   const createOrder = () => {
@@ -10,43 +19,59 @@ const NewOrder = () => {
   const {
     handleSubmit,
     register,
-    watch,
     formState: { errors },
-  } = useForm();
+  } = useForm({
+    defaultValues: {
+      name: "Jonathan",
+      email: "johnny@ruizops.com",
+      maxOrderSize: "1",
+      departureTime: "5",
+    },
+    resolver: zodResolver(schema),
+  });
 
   return (
-    <form onSubmit={handleSubmit(createOrder)} className="w-1/3">
+    <form
+      className="w-1/3"
+      autoComplete="off"
+      onSubmit={handleSubmit(createOrder)}
+    >
       <div className="mb-5">
         <label htmlFor="name">Name</label>
         <input
-          {...(register("name"), { required: true })}
-          placeholder="Full Name"
           className="w-full block h-10 bg-neutral-900"
+          placeholder="Full Name"
+          {...register("name")}
         ></input>
+        <p className="text-red-700">{errors.name?.message}</p>
       </div>
       <div className="mb-5">
         <label htmlFor="email">Email</label>
         <input
-          {...(register("email"), { required: true })}
-          placeholder="Email"
           className="w-full block h-10 bg-neutral-900"
+          type="email"
+          placeholder="Email"
+          {...register("email")}
         ></input>
+        <p className="text-red-700">{errors.email?.message}</p>
       </div>
       <div className="mb-5">
         <label htmlFor="maxOrderSize">Max Order Size</label>
         <input
-          {...register("maxOrderSize")}
-          placeholder="Max # of Orders"
           className="w-full block h-10 bg-neutral-900"
+          placeholder="Max # of Orders"
+          {...register("maxOrderSize")}
         ></input>
+        <p className="text-red-700">{errors.maxOrderSize?.message}</p>
       </div>
       <div className="mb-5">
         <label htmlFor="departureTime">Departure Time</label>
         <input
-          {...register("departureTime")}
-          placeholder="What time are you leaving?"
           className="w-full block h-10 bg-neutral-900"
+          placeholder="What time are you leaving?"
+          {...register("departureTime")}
         ></input>
+        <p className="text-red-700">{errors.departureTime?.message}</p>
       </div>
       <button type="submit" className="bg-blue-800 p-4 rounded">
         Submit
