@@ -15,24 +15,42 @@ const NewOrder = () => {
   } = useForm();
 
   return (
-    <form onSubmit={handleSubmit(createOrder)} className="">
-      <input
-        {...(register("name"), { required: true })}
-        placeholder="Full Name"
-      ></input>
-      <input
-        {...(register("email"), { required: true })}
-        placeholder="Email"
-      ></input>
-      <input
-        {...register("maxOrderSize")}
-        placeholder="Max # of Orders"
-      ></input>
-      <input
-        {...register("leaving")}
-        placeholder="What time are you leaving?"
-      ></input>
-      <button type="submit">Submit</button>
+    <form onSubmit={handleSubmit(createOrder)} className="w-1/3">
+      <div>
+        <label htmlFor="name">Name</label>
+        <input
+          {...(register("name"), { required: true })}
+          placeholder="Full Name"
+          className="w-full block"
+        ></input>
+      </div>
+      <div>
+        <label htmlFor="email">Email</label>
+        <input
+          {...(register("email"), { required: true })}
+          placeholder="Email"
+          className="w-full block"
+        ></input>
+      </div>
+      <div>
+        <label htmlFor="maxOrderSize">Max Order Size</label>
+        <input
+          {...register("maxOrderSize")}
+          placeholder="Max # of Orders"
+          className="w-full block"
+        ></input>
+      </div>
+      <div>
+        <label htmlFor="departureTime">Departure Time</label>
+        <input
+          {...register("departureTime")}
+          placeholder="What time are you leaving?"
+          className="w-full block"
+        ></input>
+      </div>
+      <button type="submit" className="bg-blue-800 p-4 rounded">
+        Submit
+      </button>
     </form>
   );
 };
