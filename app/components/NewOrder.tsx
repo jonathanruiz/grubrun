@@ -24,10 +24,10 @@ const NewOrder = () => {
     formState: { errors },
   } = useForm({
     defaultValues: {
-      name: "Jonathan",
-      email: "johnny@ruizops.com",
-      maxOrderSize: "1",
-      departureTime: "5",
+      name: "",
+      email: "",
+      maxOrderSize: "",
+      departureTime: "",
     },
     resolver: zodResolver(schema),
   });
