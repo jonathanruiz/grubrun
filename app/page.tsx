@@ -1,7 +1,10 @@
+import NewOrder from "./components/NewOrder";
+
 const Home = () => {
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24">
-      <h1 className="text-4xl">Hello World!</h1>
+    <main className="mx-auto max-w-screen-xl px-4 py-4 sm:px-6 lg:px-8">
+      <h2 className="text-4xl">Create an order!</h2>
+      <NewOrder />
     </main>
   );
 };
