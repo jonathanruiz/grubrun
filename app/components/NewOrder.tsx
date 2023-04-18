@@ -5,7 +5,9 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z, ZodType } from "zod";
 
 const schema: ZodType = z.object({
-  name: z.string().min(2, { message: "Name requires at least 2 characters." }),
+  name: z
+    .string()
+    .min(2, { message: "Name must contain at least 2 character(s)" }),
   email: z.string().email(),
   maxOrderSize: z.string().min(1).max(100),
   departureTime: z.string().min(1).max(60),
