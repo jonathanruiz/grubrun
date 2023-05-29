@@ -41,7 +41,7 @@ const NewOrder = () => {
       <div className="mb-5">
         <label htmlFor="name">Name</label>
         <input
-          className="w-full block h-10 bg-neutral-900"
+          className="w-full block h-10"
           placeholder="Full Name"
           {...register("name")}
         ></input>
@@ -50,7 +50,7 @@ const NewOrder = () => {
       <div className="mb-5">
         <label htmlFor="email">Email</label>
         <input
-          className="w-full block h-10 bg-neutral-900"
+          className="w-full block h-10"
           type="email"
           placeholder="Email"
           {...register("email")}
@@ -60,7 +60,7 @@ const NewOrder = () => {
       <div className="mb-5">
         <label htmlFor="maxOrderSize">Max Order Size</label>
         <input
-          className="w-full block h-10 bg-neutral-900"
+          className="w-full block h-10"
           placeholder="Max # of Orders"
           {...register("maxOrderSize")}
         ></input>
@@ -69,13 +69,13 @@ const NewOrder = () => {
       <div className="mb-5">
         <label htmlFor="departureTime">Departure Time</label>
         <input
-          className="w-full block h-10 bg-neutral-900"
+          className="w-full block h-10"
           placeholder="What time are you leaving?"
           {...register("departureTime")}
         ></input>
         <p className="text-red-700">{errors.departureTime?.message}</p>
       </div>
-      <button type="submit" className="bg-blue-800 p-4 rounded">
+      <button type="submit" className="bg-blue-800 text-white p-4 rounded">
         Submit
       </button>
     </form>
