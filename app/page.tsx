@@ -36,7 +36,7 @@ const formSchema = z.object({
     }),
 })
 
-export default function IndexPage() {
+const IndexPage = () => {
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
     })
@@ -183,3 +183,5 @@ export default function IndexPage() {
         </section>
     )
 }
+
+export default IndexPage
