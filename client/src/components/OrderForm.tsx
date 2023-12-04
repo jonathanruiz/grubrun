@@ -44,24 +44,28 @@ const OrderForm = () => {
       <label htmlFor="name">Name</label>
       <input
         className="border p-2"
+        name="name"
         type="text"
         placeholder="Enter your name here"
       />
       <label htmlFor="email">Email</label>
       <input
         className="border p-2"
+        name="email"
         type="text"
         placeholder="Enter your email here"
       />
       <label htmlFor="max">Maximum Order Size</label>
       <input
         className="border p-2"
+        name="max"
         type="text"
         placeholder="Enter maximum order size"
       />
       <label htmlFor="time">Time until leaving (in minutes)</label>
       <input
         className="border p-2"
+        name="time"
         type="text"
         placeholder="Enter minutes until leaving"
       />
