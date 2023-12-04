@@ -1,5 +1,6 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import OrderForm from "./components/OrderForm";
+import OrderCollect from "./components/OrderCollect";
 
 function App() {
   return (
@@ -9,7 +10,7 @@ function App() {
           <h1 className="text-3xl font-bold underline">Grub Run</h1>
           <Routes>
             <Route path="/" element={<OrderForm />} />
-            <Route path="/order" element={<h2>Test</h2>} />
+            <Route path="/order" element={<OrderCollect />} />
           </Routes>
         </div>
       </div>
