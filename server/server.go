@@ -35,7 +35,7 @@ func handleConnections(w http.ResponseWriter, r *http.Request) {
 		// Read in a new message as JSON and map it to a Message object
 		messageType, message, err := ws.ReadMessage()
 		if err != nil {
-			log.Error(err)
+			log.Warn(err)
 			break
 		}
 
