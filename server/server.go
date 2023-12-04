@@ -23,7 +23,7 @@ func handleConnections(w http.ResponseWriter, r *http.Request) {
 	// Upgrade initial GET request to a WebSocket
 	ws, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
-		log.Fatal(err)
+		log.Error(err)
 	}
 
 	log.Info("New WebSocket connection established")
@@ -35,11 +35,11 @@ func handleConnections(w http.ResponseWriter, r *http.Request) {
 		// Read in a new message as JSON and map it to a Message object
 		messageType, message, err := ws.ReadMessage()
 		if err != nil {
-			log.Fatal(err)
+			log.Error(err)
 			break
 		}
 
-		log.Info("Received a %v message: %s", messageType, message)
+		log.Infof("Received a %v message: %s", messageType, message)
 	}
 }
 
