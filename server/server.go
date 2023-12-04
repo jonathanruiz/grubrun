@@ -25,11 +25,13 @@ func handleConnections(w http.ResponseWriter, r *http.Request) {
 
 	for {
 		// Read in a new message as JSON and map it to a Message object
-		_, _, err := ws.ReadMessage()
+		messageType, message, err := ws.ReadMessage()
 		if err != nil {
 			log.Println(err)
 			break
 		}
+
+		log.Printf("Received a %v message: %s", messageType, message)
 	}
 }
 
@@ -38,5 +40,5 @@ func main() {
 	http.HandleFunc("/ws", handleConnections)
 
 	// Start the server on localhost port 8000 and log any errors
-	log.Println("http server started on :8000", nil)
+	log.Fatal(http.ListenAndServe(":8000", nil))
 }
