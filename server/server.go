@@ -20,6 +20,8 @@ func handleConnections(w http.ResponseWriter, r *http.Request) {
 		log.Fatal(err)
 	}
 
+	log.Println("New WebSocket connection established")
+
 	// Close the connection when the function returns
 	defer ws.Close()
 
