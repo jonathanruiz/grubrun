@@ -44,9 +44,13 @@ func handleConnections(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
+	// Print a message to the console once the application starts
+	log.Println("HTTP server started on port 8000")
+
 	// Configure websocket route
 	http.HandleFunc("/ws", handleConnections)
 
 	// Start the server on localhost port 8000 and log any errors
 	log.Fatal(http.ListenAndServe(":8000", nil))
+
 }
