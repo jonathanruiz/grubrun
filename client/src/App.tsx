@@ -9,6 +9,7 @@ function App() {
           <h1 className="text-3xl font-bold underline">Grub Run</h1>
           <Routes>
             <Route path="/" element={<OrderForm />} />
+            <Route path="/order" element={<h2>Test</h2>} />
           </Routes>
         </div>
       </div>
