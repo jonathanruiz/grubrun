@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
 const OrderForm = () => {
+  const navigate = useNavigate();
   const [ws, setWs] = useState<WebSocket | null>(null);
 
   useEffect(() => {
@@ -37,6 +39,8 @@ const OrderForm = () => {
     if (ws) {
       ws.send(JSON.stringify(Object.fromEntries(data)));
     }
+
+    navigate("/order");
   };
 
   return (
