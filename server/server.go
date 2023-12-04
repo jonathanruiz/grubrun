@@ -1,9 +1,9 @@
 package main
 
 import (
-	"log"
 	"net/http"
 
+	"github.com/charmbracelet/log"
 	"github.com/gorilla/websocket"
 )
 
@@ -26,7 +26,7 @@ func handleConnections(w http.ResponseWriter, r *http.Request) {
 		log.Fatal(err)
 	}
 
-	log.Println("New WebSocket connection established")
+	log.Info("New WebSocket connection established")
 
 	// Close the connection when the function returns
 	defer ws.Close()
@@ -35,17 +35,17 @@ func handleConnections(w http.ResponseWriter, r *http.Request) {
 		// Read in a new message as JSON and map it to a Message object
 		messageType, message, err := ws.ReadMessage()
 		if err != nil {
-			log.Println(err)
+			log.Fatal(err)
 			break
 		}
 
-		log.Printf("Received a %v message: %s", messageType, message)
+		log.Info("Received a %v message: %s", messageType, message)
 	}
 }
 
 func main() {
 	// Print a message to the console once the application starts
-	log.Println("HTTP server started on port 8000")
+	log.Info("HTTP server started on port 8000")
 
 	// Configure websocket route
 	http.HandleFunc("/ws", handleConnections)
