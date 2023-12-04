@@ -11,6 +11,12 @@ import (
 var upgrader = websocket.Upgrader{
 	ReadBufferSize:  1024,
 	WriteBufferSize: 1024,
+	// TODO: Add a function that checks the origin of the request is from a trusted domain for production.
+	// This is a function that allows us to specify which origins are allowed to access our WebSocket.
+	CheckOrigin: func(r *http.Request) bool {
+		// Set to true for development purposes
+		return true
+	},
 }
 
 func handleConnections(w http.ResponseWriter, r *http.Request) {
