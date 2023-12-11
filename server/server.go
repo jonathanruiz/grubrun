@@ -10,6 +10,20 @@ import (
 	"github.com/gorilla/websocket"
 )
 
+type OrderRuns struct {
+	OrderId   string `json:"orderId"`
+	Owner     string `json:"name"`
+	Email     string `json:"email"`
+	MaxOrder  string `json:"max"`
+	TimeLimit string `json:"time"`
+}
+
+type Order struct {
+	OrderId string
+	Owner   string
+	Order   string
+}
+
 // Takes a normal HTTP connection and upgrades it to a WebSocket connection.
 var upgrader = websocket.Upgrader{
 	ReadBufferSize:  1024,
@@ -96,6 +110,8 @@ func sendJSONResponse(w http.ResponseWriter, orderId string) {
 }
 
 func main() {
+	var orders = make(map[string]OrderRuns)
+
 	// Print a message to the console once the application starts
 	log.Info("HTTP server started on port 8000")
 
@@ -106,8 +122,24 @@ func main() {
 			return
 		}
 
+		// Create a new OrderRuns object
+		var order OrderRuns
+
+		// Read the JSON body and decode into an OrderRuns object
+		err := json.NewDecoder(r.Body).Decode(&order)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+
 		// Generate a random string
 		randomString := generateRandomString()
+
+		// Set the OrderId field of the OrderRuns object to the random string
+		order.OrderId = randomString
+
+		// Store the OrderRuns object in the orders map using the orderID as the key
+		orders[order.OrderId] = order
 
 		// Send the JSON response
 		sendJSONResponse(w, randomString)
