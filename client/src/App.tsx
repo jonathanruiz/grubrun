@@ -10,6 +10,10 @@ function App() {
           <h1 className="text-3xl font-bold underline">Grub Run</h1>
           <Routes>
             <Route path="/" element={<OrderForm />} />
+            <Route
+              path="/orderSubmitted/:orderId"
+              element={<div>Order Submitted</div>}
+            />
             <Route path="/order" element={<OrderCollect />} />
           </Routes>
         </div>
