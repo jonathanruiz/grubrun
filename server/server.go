@@ -91,12 +91,16 @@ func generateRandomString() string {
 	return sb.String()
 }
 
-func sendJSONResponse(w http.ResponseWriter, orderId string) {
-	// Create a map to hold the response
-	response := map[string]string{"orderId": orderId}
+func sendJSONResponse(w http.ResponseWriter, orders map[string]OrderRuns, orderId string) {
+	// Get the OrderRuns object from the orders map
+	order, exists := orders[orderId]
+	if !exists {
+		http.Error(w, "Order not found", http.StatusNotFound)
+		return
+	}
 
-	// Marshal the map into a JSON object
-	jsonResponse, err := json.Marshal(response)
+	// Marshal the OrderRuns object into a JSON object
+	jsonResponse, err := json.Marshal(order)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -110,6 +114,7 @@ func sendJSONResponse(w http.ResponseWriter, orderId string) {
 }
 
 func main() {
+	// Stores the orders that have been created.
 	var orders = make(map[string]OrderRuns)
 
 	// Print a message to the console once the application starts
@@ -142,10 +147,10 @@ func main() {
 		orders[order.OrderId] = order
 
 		// Send the JSON response
-		sendJSONResponse(w, randomString)
+		sendJSONResponse(w, orders, order.OrderId)
 
 		// Log the POST request
-		log.Infof("POST request received on /api/createOrder: %s", randomString)
+		log.Infof("POST request received on /api/createOrder: %s", orders[order.OrderId])
 	})
 
 	// Configure websocket route
