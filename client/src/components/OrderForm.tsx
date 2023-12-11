@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import config from "../../config";
 
-const BASE_URL = config.api.baseUrl;
+const API_BASE_URL = config.api.baseUrl;
 
 const OrderForm = () => {
   const navigate = useNavigate();
@@ -43,7 +43,7 @@ const OrderForm = () => {
       ws.send(JSON.stringify(Object.fromEntries(data)));
     }
 
-    const response = await fetch(`${BASE_URL}/api/createOrder`, {
+    const response = await fetch(`${API_BASE_URL}/api/createOrder`, {
       method: "POST",
       body: data,
     })
