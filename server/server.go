@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"math/rand"
 	"net/http"
 	"strings"
@@ -76,6 +77,24 @@ func generateRandomString() string {
 	return sb.String()
 }
 
+func sendJSONResponse(w http.ResponseWriter, orderId string) {
+	// Create a map to hold the response
+	response := map[string]string{"orderId": orderId}
+
+	// Marshal the map into a JSON object
+	jsonResponse, err := json.Marshal(response)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	// Set the content type to application/json
+	w.Header().Set("Content-Type", "application/json")
+
+	// Send the JSON response back to the client
+	w.Write(jsonResponse)
+}
+
 func main() {
 	// Print a message to the console once the application starts
 	log.Info("HTTP server started on port 8000")
@@ -90,8 +109,8 @@ func main() {
 		// Generate a random string
 		randomString := generateRandomString()
 
-		// Send the random string back to the client
-		w.Write([]byte(randomString))
+		// Send the JSON response
+		sendJSONResponse(w, randomString)
 
 		// Log the POST request
 		log.Infof("POST request received on /api/createOrder: %s", randomString)
