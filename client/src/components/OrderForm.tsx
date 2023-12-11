@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import config from "../../config";
 
-const BASE_URL = "http://localhost:8000";
+const BASE_URL = config.api.baseUrl;
 
 const OrderForm = () => {
   const navigate = useNavigate();
@@ -51,7 +52,7 @@ const OrderForm = () => {
         console.error("Error was thrown:", err);
       });
 
-    navigate(`/orderSubmitted/${response.orderId}`);
+    navigate(`/orderSubmitted/${response.orderId}`, { state: response });
   };
 
   return (
