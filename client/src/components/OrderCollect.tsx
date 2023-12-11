@@ -42,8 +42,10 @@ const OrderCollect = () => {
     e.preventDefault();
     console.log("Submitting order");
     const data = new FormData(e.currentTarget);
+    const jsonData = Object.fromEntries(data.entries());
+
     if (ws) {
-      ws.send(JSON.stringify(Object.fromEntries(data)));
+      ws.send(JSON.stringify(jsonData));
     }
   };
   return (
