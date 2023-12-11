@@ -40,7 +40,7 @@ var upgrader = websocket.Upgrader{
 var lastReceivedMessage []uint8
 
 // Handles WebSocket connections.
-func handleConnections(w http.ResponseWriter, r *http.Request) {
+func handleConnections(w http.ResponseWriter, r *http.Request, orders map[string]OrderRuns) {
 	// Upgrade initial GET request to a WebSocket
 	ws, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
@@ -92,6 +92,38 @@ func generateRandomString() string {
 	return sb.String()
 }
 
+func handleCreateOrder(w http.ResponseWriter, r *http.Request, orders map[string]OrderRuns) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
+		return
+	}
+
+	// Create a new OrderRuns object
+	var order OrderRuns
+
+	// Read the JSON body and decode into an OrderRuns object
+	err := json.NewDecoder(r.Body).Decode(&order)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	// Generate a random string
+	randomString := generateRandomString()
+
+	// Set the OrderId field of the OrderRuns object to the random string
+	order.OrderId = randomString
+
+	// Store the OrderRuns object in the orders map using the orderID as the key
+	orders[order.OrderId] = order
+
+	// Send the JSON response
+	sendJSONResponse(w, orders, order.OrderId)
+
+	// Log the POST request
+	log.Infof("POST request received on /api/createOrder: %s", orders[order.OrderId])
+}
+
 // Sends a JSON response back to the client.
 func sendJSONResponse(w http.ResponseWriter, orders map[string]OrderRuns, orderId string) {
 	// Get the OrderRuns object from the orders map
@@ -124,39 +156,13 @@ func main() {
 
 	// Create an API post route that will generate a random string whenever /api/createOrder is called
 	http.HandleFunc("/api/createOrder", func(w http.ResponseWriter, r *http.Request) {
-		if r.Method != http.MethodPost {
-			http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
-			return
-		}
-
-		// Create a new OrderRuns object
-		var order OrderRuns
-
-		// Read the JSON body and decode into an OrderRuns object
-		err := json.NewDecoder(r.Body).Decode(&order)
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusBadRequest)
-			return
-		}
-
-		// Generate a random string
-		randomString := generateRandomString()
-
-		// Set the OrderId field of the OrderRuns object to the random string
-		order.OrderId = randomString
-
-		// Store the OrderRuns object in the orders map using the orderID as the key
-		orders[order.OrderId] = order
-
-		// Send the JSON response
-		sendJSONResponse(w, orders, order.OrderId)
-
-		// Log the POST request
-		log.Infof("POST request received on /api/createOrder: %s", orders[order.OrderId])
+		handleCreateOrder(w, r, orders)
 	})
 
 	// Configure websocket route
-	http.HandleFunc("/ws", handleConnections)
+	http.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {
+		handleConnections(w, r, orders)
+	})
 
 	// Start the server on localhost port 8000 and log any errors
 	log.Fatal(http.ListenAndServe(":8000", nil))
