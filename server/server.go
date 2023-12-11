@@ -39,6 +39,7 @@ var upgrader = websocket.Upgrader{
 // Stores the last received message from the client.
 var lastReceivedMessage []uint8
 
+// Handles WebSocket connections.
 func handleConnections(w http.ResponseWriter, r *http.Request) {
 	// Upgrade initial GET request to a WebSocket
 	ws, err := upgrader.Upgrade(w, r, nil)
@@ -73,7 +74,7 @@ func handleConnections(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// Create a function that will generate a 5 character random string including numbers and uppercase letters.
+// Generates a random string of 5 characters, inlcuding uppercase letters and numbers.
 func generateRandomString() string {
 	// Create a slice of characters that will be used to generate the random string
 	characters := []rune("ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789")
@@ -91,6 +92,7 @@ func generateRandomString() string {
 	return sb.String()
 }
 
+// Sends a JSON response back to the client.
 func sendJSONResponse(w http.ResponseWriter, orders map[string]OrderRuns, orderId string) {
 	// Get the OrderRuns object from the orders map
 	order, exists := orders[orderId]
