@@ -1,7 +1,9 @@
 package main
 
 import (
+	"math/rand"
 	"net/http"
+	"strings"
 
 	"github.com/charmbracelet/log"
 	"github.com/gorilla/websocket"
@@ -56,9 +58,44 @@ func handleConnections(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// Create a function that will generate a 5 character random string including numbers and uppercase letters.
+func generateRandomString() string {
+	// Create a slice of characters that will be used to generate the random string
+	characters := []rune("ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789")
+
+	// Create a string builder that will be used to build the random string
+	var sb strings.Builder
+
+	// Loop 5 times and each time generate a random character from the characters slice and add it to the string builder
+	for i := 0; i < 5; i++ {
+		randomIndex := rand.Intn(len(characters))
+		sb.WriteRune(characters[randomIndex])
+	}
+
+	// Return the string builder as a string
+	return sb.String()
+}
+
 func main() {
 	// Print a message to the console once the application starts
 	log.Info("HTTP server started on port 8000")
+
+	// Create an API post route that will generate a random string whenever /api/createOrder is called
+	http.HandleFunc("/api/createOrder", func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodPost {
+			http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
+			return
+		}
+
+		// Generate a random string
+		randomString := generateRandomString()
+
+		// Send the random string back to the client
+		w.Write([]byte(randomString))
+
+		// Log the POST request
+		log.Infof("POST request received on /api/createOrder: %s", randomString)
+	})
 
 	// Configure websocket route
 	http.HandleFunc("/ws", handleConnections)
