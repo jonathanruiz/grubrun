@@ -19,6 +19,9 @@ var upgrader = websocket.Upgrader{
 	},
 }
 
+// Stores the last received message from the client.
+var lastReceivedMessage []uint8
+
 func handleConnections(w http.ResponseWriter, r *http.Request) {
 	// Upgrade initial GET request to a WebSocket
 	ws, err := upgrader.Upgrade(w, r, nil)
@@ -40,6 +43,16 @@ func handleConnections(w http.ResponseWriter, r *http.Request) {
 		}
 
 		log.Infof("Received a %v message: %s", messageType, message)
+
+		// Store the last received message
+		lastReceivedMessage = message
+
+		// Send the last received message back to the client
+		if err := ws.WriteMessage(messageType, lastReceivedMessage); err != nil {
+			log.Warn(err)
+			break
+		}
+
 	}
 }
 
