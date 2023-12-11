@@ -1,6 +1,7 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import OrderForm from "./components/OrderForm";
 import OrderCollect from "./components/OrderCollect";
+import OrderSubmitted from "./components/OrderSubmitted";
 
 function App() {
   return (
@@ -12,9 +13,9 @@ function App() {
             <Route path="/" element={<OrderForm />} />
             <Route
               path="/orderSubmitted/:orderId"
-              element={<div>Order Submitted</div>}
+              element={<OrderSubmitted />}
             />
-            <Route path="/order" element={<OrderCollect />} />
+            <Route path="/order/:orderId" element={<OrderCollect />} />
           </Routes>
         </div>
       </div>
