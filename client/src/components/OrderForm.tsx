@@ -1,49 +1,16 @@
-import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import config from "../../config";
 
-const BASE_URL = config.api.baseUrl;
+const API_BASE_URL = config.api.baseUrl;
 
 const OrderForm = () => {
   const navigate = useNavigate();
-  const [ws, setWs] = useState<WebSocket | null>(null);
-
-  useEffect(() => {
-    // Create a WebSocket connection to the server
-    const websocket = new WebSocket("ws://localhost:8000/ws");
-
-    // Listen for messages from the server
-    websocket.onopen = () => {
-      console.log("WebSocket connection opened");
-    };
-
-    websocket.onmessage = (event) => {
-      console.log(`Received: ${event.data}`);
-    };
-
-    websocket.onerror = (error) => {
-      console.log(`WebSocket error: ${error}`);
-    };
-
-    websocket.onclose = () => {
-      console.log("WebSocket connection closed");
-    };
-
-    setWs(websocket);
-
-    return () => {
-      websocket.close();
-    };
-  }, []);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const data = new FormData(e.currentTarget);
-    if (ws) {
-      ws.send(JSON.stringify(Object.fromEntries(data)));
-    }
 
-    const response = await fetch(`${BASE_URL}/api/createOrder`, {
+    const response = await fetch(`${API_BASE_URL}/api/createOrder`, {
       method: "POST",
       body: data,
     })
