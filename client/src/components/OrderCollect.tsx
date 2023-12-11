@@ -90,8 +90,6 @@ const OrderCollect = () => {
             ))}
         </tbody>
       </table>
-
-      {order && <pre>{JSON.stringify(order, null, 2)}</pre>}
     </>
   );
 };
