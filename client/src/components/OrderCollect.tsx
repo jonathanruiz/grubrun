@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 
 const OrderCollect = () => {
-  const [order, setOrder] = useState(null);
+  const [ws, setWs] = useState<WebSocket | null>(null);
 
   useEffect(() => {
     // Create a WebSocket connection to the server
@@ -16,7 +16,7 @@ const OrderCollect = () => {
       console.log("Received:", message.data);
       // Assuming the server sends the order data as a JSON string
       const data = JSON.parse(message.data);
-      setOrder(data);
+      setWs(data);
     };
 
     websocket.onerror = (error) => {
@@ -31,10 +31,18 @@ const OrderCollect = () => {
       websocket.close();
     };
   }, []);
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const data = new FormData(e.currentTarget);
+    if (ws) {
+      ws.send(JSON.stringify(Object.fromEntries(data)));
+    }
+  };
   return (
     <>
       <h2>Order Collect</h2>
-      {order && <pre>{JSON.stringify(order, null, 2)}</pre>}
+      {ws && <pre>{JSON.stringify(ws, null, 2)}</pre>}
     </>
   );
 };
