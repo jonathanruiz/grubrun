@@ -1,6 +1,10 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+
+const BASE_URL = "http://localhost:8000";
 
 const OrderForm = () => {
+  const navigate = useNavigate();
   const [ws, setWs] = useState<WebSocket | null>(null);
 
   useEffect(() => {
@@ -31,12 +35,23 @@ const OrderForm = () => {
     };
   }, []);
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const data = new FormData(e.currentTarget);
     if (ws) {
       ws.send(JSON.stringify(Object.fromEntries(data)));
     }
+
+    const response = await fetch(`${BASE_URL}/api/createOrder`, {
+      method: "POST",
+      body: data,
+    })
+      .then((res) => res.json())
+      .catch((err) => {
+        console.error("Error was thrown:", err);
+      });
+
+    navigate(`/orderSubmitted/${response.orderId}`);
   };
 
   return (
