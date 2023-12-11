@@ -10,9 +10,15 @@ const OrderForm = () => {
     e.preventDefault();
     const data = new FormData(e.currentTarget);
 
+    // Create a JavaScript object with the form data
+    const jsonData = Object.fromEntries(data.entries());
+
     const response = await fetch(`${API_BASE_URL}/api/createOrder`, {
       method: "POST",
-      body: data,
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(jsonData), // Convert the JavaScript object to a JSON string
     })
       .then((res) => res.json())
       .catch((err) => {
