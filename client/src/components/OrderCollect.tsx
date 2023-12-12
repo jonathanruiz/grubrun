@@ -22,23 +22,6 @@ const OrderCollect = () => {
   const [ws, setWS] = useState<WebSocket | null>(null);
   const [orderRun, setOrderRun] = useState<OrderRun | null>(null);
 
-  useEffect(() => {
-    fetch(`${API_BASE_URL}/api/getOrderRun?orderId=${orderId}`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        setOrderRun(data);
-        console.log("Here is the data from GET: ", data);
-      })
-      .catch((err) => {
-        console.error("Error was thrown:", err);
-      });
-  }, []); // Empty array of dependencies
-
   console.log("Here is the order: ", orderRun);
 
   useEffect(() => {
@@ -46,6 +29,30 @@ const OrderCollect = () => {
 
     websocket.onopen = () => {
       console.log("WebSocket connection opened");
+      fetch(`${API_BASE_URL}/api/getOrderRun?orderId=${orderId}`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      })
+        .then((res) => {
+          console.log("Server response:", res);
+          return res.json();
+        })
+        .catch((err) => {
+          console.error("Error was thrown:", err);
+        })
+        .then((data) => {
+          if (orderId) {
+            setOrderRun(data);
+            console.log("Here is the data from GET: ", data);
+          } else {
+            console.error("orderId is undefined");
+          }
+        })
+        .catch((err) => {
+          console.error("Error was thrown:", err);
+        });
     };
 
     websocket.onmessage = (message) => {
@@ -118,9 +125,11 @@ const OrderCollect = () => {
           </tr>
         </thead>
         <tbody>
-          {orderRun &&
-            orderRun.orders &&
-            orderRun.orders.map((order: Order) => (
+          {orderId &&
+            orderRun &&
+            orderRun[orderId] &&
+            orderRun[orderId].orders &&
+            orderRun[orderId].orders.map((order: Order) => (
               <tr key={order.name}>
                 <td className="w-1/2">{order.name}</td>
                 <td className="w-1/2">{order.order}</td>
