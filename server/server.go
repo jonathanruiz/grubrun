@@ -137,17 +137,8 @@ func handleCreateOrder(w http.ResponseWriter, r *http.Request, orders map[string
 	// Store the OrderRuns object in the orders map using the orderID as the key
 	orders[orderRun.OrderId] = orderRun
 
-	// Send the JSON response
-	sendJSONResponse(w, orders, orderRun.OrderId)
-
-	// Log the POST request
-	log.Infof("POST request received on /api/createOrder: %s", orders[orderRun.OrderId])
-}
-
-// Sends a JSON response back to the client.
-func sendJSONResponse(w http.ResponseWriter, orders map[string]OrderRuns, orderId string) {
 	// Marshal the OrderRuns object into a JSON object
-	jsonResponse, err := json.Marshal(orders)
+	jsonResponse, err := json.Marshal(orders[orderRun.OrderId])
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -158,6 +149,9 @@ func sendJSONResponse(w http.ResponseWriter, orders map[string]OrderRuns, orderI
 
 	// Send the JSON response back to the client
 	w.Write(jsonResponse)
+
+	// Log the POST request
+	log.Infof("POST request received on /api/createOrder: %s", orders[orderRun.OrderId])
 }
 
 func main() {
@@ -177,8 +171,18 @@ func main() {
 		// Get the orderId from the query string
 		orderId := r.URL.Query().Get("orderId")
 
-		// Send the JSON response
-		sendJSONResponse(w, orders, orderId)
+		// Marshal the OrderRuns object into a JSON object
+		jsonResponse, err := json.Marshal(orders)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		// Set the content type to application/json
+		w.Header().Set("Content-Type", "application/json")
+
+		// Send the JSON response back to the client
+		w.Write(jsonResponse)
 
 		// Log the GET request
 		log.Infof("GET request received on /api/getOrder: %s", orderId)
