@@ -60,33 +60,35 @@ func handleConnections(w http.ResponseWriter, r *http.Request, orders map[string
 
 		log.Infof("Received a %v message: %s", messageType, message)
 
-		// Parse the message into an OrderRuns object
+		// Parse the message into an Order object
 		var order Order
 		err = json.Unmarshal(message, &order)
 		if err != nil {
 			log.Warn(err)
-			continue
+			break
 		}
 
-		// Get the OrderRuns object from the orders map
+		// Get the orders object from the orders map using the orderId as the key
 		orderRuns, exists := orders[order.OrderId]
 		if !exists {
-			log.Warn("Order not found")
+			http.Error(w, "Order not found", http.StatusNotFound)
+			return
 		}
 
 		// Append the new order to the Orders slice
 		orderRuns.Orders = append(orderRuns.Orders, order)
 
-		// Log the OrderRuns object
-		log.Infof("OrderRuns object: %s", orderRuns)
-
 		// Put the modified OrderRuns object back into the orders map
 		orders[order.OrderId] = orderRuns
 
-		// Send the OrderRuns object back to the client
-		err = ws.WriteJSON(orderRuns)
+		// Log the orders object
+		log.Infof("Orders object: %s", orders)
+
+		// Send the orders object back to the client
+		err = ws.WriteJSON(orders)
 		if err != nil {
 			log.Warn(err)
+			break
 		}
 
 	}
@@ -117,10 +119,10 @@ func handleCreateOrder(w http.ResponseWriter, r *http.Request, orders map[string
 	}
 
 	// Create a new OrderRuns object
-	var order OrderRuns
+	var orderRun OrderRuns
 
 	// Read the JSON body and decode into an OrderRuns object
-	err := json.NewDecoder(r.Body).Decode(&order)
+	err := json.NewDecoder(r.Body).Decode(&orderRun)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
@@ -130,29 +132,22 @@ func handleCreateOrder(w http.ResponseWriter, r *http.Request, orders map[string
 	randomString := generateRandomString()
 
 	// Set the OrderId field of the OrderRuns object to the random string
-	order.OrderId = randomString
+	orderRun.OrderId = randomString
 
 	// Store the OrderRuns object in the orders map using the orderID as the key
-	orders[order.OrderId] = order
+	orders[orderRun.OrderId] = orderRun
 
 	// Send the JSON response
-	sendJSONResponse(w, orders, order.OrderId)
+	sendJSONResponse(w, orders, orderRun.OrderId)
 
 	// Log the POST request
-	log.Infof("POST request received on /api/createOrder: %s", orders[order.OrderId])
+	log.Infof("POST request received on /api/createOrder: %s", orders[orderRun.OrderId])
 }
 
 // Sends a JSON response back to the client.
 func sendJSONResponse(w http.ResponseWriter, orders map[string]OrderRuns, orderId string) {
-	// Get the OrderRuns object from the orders map
-	order, exists := orders[orderId]
-	if !exists {
-		http.Error(w, "Order not found", http.StatusNotFound)
-		return
-	}
-
 	// Marshal the OrderRuns object into a JSON object
-	jsonResponse, err := json.Marshal(order)
+	jsonResponse, err := json.Marshal(orders)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -178,7 +173,7 @@ func main() {
 	})
 
 	// Create an API get route that will return the orders map as a JSON object based on the orderId
-	http.HandleFunc("/api/getOrder", func(w http.ResponseWriter, r *http.Request) {
+	http.HandleFunc("/api/getOrderRun", func(w http.ResponseWriter, r *http.Request) {
 		// Get the orderId from the query string
 		orderId := r.URL.Query().Get("orderId")
 
