@@ -11,17 +11,18 @@ import (
 )
 
 type OrderRuns struct {
-	OrderId   string `json:"orderId"`
-	Owner     string `json:"name"`
-	Email     string `json:"email"`
-	MaxOrder  string `json:"max"`
-	TimeLimit string `json:"time"`
+	OrderId   string  `json:"orderId"`
+	Owner     string  `json:"name"`
+	Email     string  `json:"email"`
+	MaxOrder  string  `json:"max"`
+	TimeLimit string  `json:"time"`
+	Orders    []Order `json:"orders"`
 }
 
 type Order struct {
-	OrderId string
-	Owner   string
-	Order   string
+	OrderId string `json:"orderId"`
+	Owner   string `json:"name"`
+	Order   string `json:"order"`
 }
 
 // Takes a normal HTTP connection and upgrades it to a WebSocket connection.
@@ -35,9 +36,6 @@ var upgrader = websocket.Upgrader{
 		return true
 	},
 }
-
-// Stores the last received message from the client.
-var lastReceivedMessage []uint8
 
 // Handles WebSocket connections.
 func handleConnections(w http.ResponseWriter, r *http.Request, orders map[string]OrderRuns) {
@@ -62,13 +60,33 @@ func handleConnections(w http.ResponseWriter, r *http.Request, orders map[string
 
 		log.Infof("Received a %v message: %s", messageType, message)
 
-		// Store the last received message
-		lastReceivedMessage = message
-
-		// Send the last received message back to the client
-		if err := ws.WriteMessage(messageType, lastReceivedMessage); err != nil {
+		// Parse the message into an OrderRuns object
+		var order Order
+		err = json.Unmarshal(message, &order)
+		if err != nil {
 			log.Warn(err)
-			break
+			continue
+		}
+
+		// Get the OrderRuns object from the orders map
+		orderRuns, exists := orders[order.OrderId]
+		if !exists {
+			log.Warn("Order not found")
+		}
+
+		// Append the new order to the Orders slice
+		orderRuns.Orders = append(orderRuns.Orders, order)
+
+		// Log the OrderRuns object
+		log.Infof("OrderRuns object: %s", orderRuns)
+
+		// Put the modified OrderRuns object back into the orders map
+		orders[order.OrderId] = orderRuns
+
+		// Send the OrderRuns object back to the client
+		err = ws.WriteJSON(orderRuns)
+		if err != nil {
+			log.Warn(err)
 		}
 
 	}
@@ -157,6 +175,18 @@ func main() {
 	// Create an API post route that will generate a random string whenever /api/createOrder is called
 	http.HandleFunc("/api/createOrder", func(w http.ResponseWriter, r *http.Request) {
 		handleCreateOrder(w, r, orders)
+	})
+
+	// Create an API get route that will return the orders map as a JSON object based on the orderId
+	http.HandleFunc("/api/getOrder", func(w http.ResponseWriter, r *http.Request) {
+		// Get the orderId from the query string
+		orderId := r.URL.Query().Get("orderId")
+
+		// Send the JSON response
+		sendJSONResponse(w, orders, orderId)
+
+		// Log the GET request
+		log.Infof("GET request received on /api/getOrder: %s", orderId)
 	})
 
 	// Configure websocket route
