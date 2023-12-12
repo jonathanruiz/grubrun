@@ -1,13 +1,45 @@
 import { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
+import config from "../../config";
 
+const API_BASE_URL = config.api.baseUrl;
+
+interface OrderRun {
+  orderId: string;
+  name: string;
+  email: string;
+  max: string;
+  time: string;
+  orders: Order[];
+}
 interface Order {
   name: string;
   order: string;
 }
 
 const OrderCollect = () => {
+  const { orderId } = useParams<{ orderId: string }>();
   const [ws, setWS] = useState<WebSocket | null>(null);
-  const [order, setOrder] = useState<Order[]>([]);
+  const [orderRun, setOrderRun] = useState<OrderRun | null>(null);
+
+  useEffect(() => {
+    fetch(`${API_BASE_URL}/api/getOrder?orderId=${orderId}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        setOrderRun(data);
+        console.log("Here is the data from GET: ", data);
+      })
+      .catch((err) => {
+        console.error("Error was thrown:", err);
+      });
+  }, [orderId]); // Empty array of dependencies
+
+  console.log("Here is the order: ", orderRun);
 
   useEffect(() => {
     const websocket = new WebSocket("ws://localhost:8000/ws");
@@ -19,7 +51,7 @@ const OrderCollect = () => {
     websocket.onmessage = (message) => {
       console.log("Received message:", message.data);
       const data = JSON.parse(message.data);
-      setOrder((orders) => [...orders, data]);
+      setOrderRun((orderRun) => ({ ...orderRun, ...data }));
     };
 
     websocket.onclose = () => {
@@ -83,8 +115,9 @@ const OrderCollect = () => {
           </tr>
         </thead>
         <tbody>
-          {order &&
-            order.map((order: Order) => (
+          {orderRun &&
+            orderRun.orders &&
+            orderRun.orders.map((order: Order) => (
               <tr key={order.name}>
                 <td className="w-1/2">{order.name}</td>
                 <td className="w-1/2">{order.order}</td>
