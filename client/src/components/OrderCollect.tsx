@@ -23,7 +23,7 @@ const OrderCollect = () => {
   const [orderRun, setOrderRun] = useState<OrderRun | null>(null);
 
   useEffect(() => {
-    fetch(`${API_BASE_URL}/api/getOrder?orderId=${orderId}`, {
+    fetch(`${API_BASE_URL}/api/getOrderRun?orderId=${orderId}`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -37,7 +37,7 @@ const OrderCollect = () => {
       .catch((err) => {
         console.error("Error was thrown:", err);
       });
-  }, [orderId]); // Empty array of dependencies
+  }, []); // Empty array of dependencies
 
   console.log("Here is the order: ", orderRun);
 
@@ -75,6 +75,9 @@ const OrderCollect = () => {
     console.log("Submitting order");
     const data = new FormData(e.currentTarget);
     const jsonData = Object.fromEntries(data.entries());
+
+    // Add the orderId to the JSON data
+    jsonData.orderId = orderId || "";
 
     if (ws) {
       ws.send(JSON.stringify(jsonData));
