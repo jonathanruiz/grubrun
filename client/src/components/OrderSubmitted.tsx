@@ -10,7 +10,7 @@ const OrderSubmitted = () => {
   return (
     <div>
       <h2 className="text-2xl font-bold">Order Submitted</h2>
-      <h3 className="text-gray-500 text-sm uppercase font-bold tracking-wider">
+      <h3 className="text-gray-500 text-md uppercase font-bold tracking-wider">
         Thank you for your order!
       </h3>
 
@@ -32,7 +32,7 @@ const OrderSubmitted = () => {
         Please share this link with your friends so they can add their orders.
       </p>
 
-      <h3 className="text-gray-500 text-sm uppercase font-bold tracking-wider">
+      <h3 className="text-gray-500 text-md uppercase font-bold tracking-wider">
         Order Details
       </h3>
       <div className="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4 flex flex-col my-2">
