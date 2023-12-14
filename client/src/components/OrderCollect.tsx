@@ -75,7 +75,7 @@ const OrderCollect = () => {
       console.log("Closing WebSocket connection");
       websocket.close();
     };
-  }, []);
+  }, [orderId]);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
