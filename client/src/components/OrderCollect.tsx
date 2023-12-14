@@ -126,10 +126,8 @@ const OrderCollect = () => {
         </thead>
         <tbody>
           {orderId &&
-            orderRun &&
-            orderRun[orderId] &&
-            orderRun[orderId].orders &&
-            orderRun[orderId].orders.map((order: Order) => (
+            // @ts-expect-error - orderRun is not null
+            orderRun?.[orderId]?.orders?.map((order: Order) => (
               <tr key={order.name}>
                 <td className="w-1/2">{order.name}</td>
                 <td className="w-1/2">{order.order}</td>
