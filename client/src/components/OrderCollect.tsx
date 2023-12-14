@@ -1,25 +1,64 @@
 import { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
+import config from "../../config";
 
+const API_BASE_URL = config.api.baseUrl;
+
+interface OrderRun {
+  orderId: string;
+  name: string;
+  email: string;
+  max: string;
+  time: string;
+  orders: Order[];
+}
 interface Order {
   name: string;
   order: string;
 }
 
 const OrderCollect = () => {
+  const { orderId } = useParams<{ orderId: string }>();
   const [ws, setWS] = useState<WebSocket | null>(null);
-  const [order, setOrder] = useState<Order[]>([]);
+  const [orderRun, setOrderRun] = useState<OrderRun | null>(null);
+
+  console.log("Here is the order: ", orderRun);
 
   useEffect(() => {
     const websocket = new WebSocket("ws://localhost:8000/ws");
 
     websocket.onopen = () => {
       console.log("WebSocket connection opened");
+      fetch(`${API_BASE_URL}/api/getOrderRun?orderId=${orderId}`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      })
+        .then((res) => {
+          console.log("Server response:", res);
+          return res.json();
+        })
+        .catch((err) => {
+          console.error("Error was thrown:", err);
+        })
+        .then((data) => {
+          if (orderId) {
+            setOrderRun(data);
+            console.log("Here is the data from GET: ", data);
+          } else {
+            console.error("orderId is undefined");
+          }
+        })
+        .catch((err) => {
+          console.error("Error was thrown:", err);
+        });
     };
 
     websocket.onmessage = (message) => {
       console.log("Received message:", message.data);
       const data = JSON.parse(message.data);
-      setOrder((orders) => [...orders, data]);
+      setOrderRun((orderRun) => ({ ...orderRun, ...data }));
     };
 
     websocket.onclose = () => {
@@ -36,14 +75,19 @@ const OrderCollect = () => {
       console.log("Closing WebSocket connection");
       websocket.close();
     };
-  }, []);
+  }, [orderId]);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     console.log("Submitting order");
     const data = new FormData(e.currentTarget);
+    const jsonData = Object.fromEntries(data.entries());
+
+    // Add the orderId to the JSON data
+    jsonData.orderId = orderId || "";
+
     if (ws) {
-      ws.send(JSON.stringify(Object.fromEntries(data)));
+      ws.send(JSON.stringify(jsonData));
     }
   };
   return (
@@ -81,8 +125,9 @@ const OrderCollect = () => {
           </tr>
         </thead>
         <tbody>
-          {order &&
-            order.map((order: Order) => (
+          {orderId &&
+            // @ts-expect-error - orderRun is not null
+            orderRun?.[orderId]?.orders?.map((order: Order) => (
               <tr key={order.name}>
                 <td className="w-1/2">{order.name}</td>
                 <td className="w-1/2">{order.order}</td>
