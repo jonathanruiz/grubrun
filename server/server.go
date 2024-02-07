@@ -10,7 +10,7 @@ import (
 	"github.com/gorilla/websocket"
 )
 
-type OrderRuns struct {
+type OrderRun struct {
 	OrderId   string  `json:"orderId"`
 	Owner     string  `json:"name"`
 	Email     string  `json:"email"`
@@ -38,7 +38,7 @@ var upgrader = websocket.Upgrader{
 }
 
 // Handles WebSocket connections.
-func handleConnections(w http.ResponseWriter, r *http.Request, clients map[*websocket.Conn]bool, orders map[string]OrderRuns) {
+func handleConnections(w http.ResponseWriter, r *http.Request, clients map[*websocket.Conn]bool, orders map[string]OrderRun) {
 	// Upgrade initial GET request to a WebSocket
 	ws, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
@@ -121,16 +121,17 @@ func generateRandomString() string {
 	return sb.String()
 }
 
-func handleCreateOrder(w http.ResponseWriter, r *http.Request, orders map[string]OrderRuns) {
+// Handles the POST request to /api/createOrder
+func handleCreateOrder(w http.ResponseWriter, r *http.Request, orders map[string]OrderRun) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
 		return
 	}
 
-	// Create a new OrderRuns object
-	var orderRun OrderRuns
+	// Create a new OrderRun object
+	var orderRun OrderRun
 
-	// Read the JSON body and decode into an OrderRuns object
+	// Read the JSON body and decode into an OrderRun object
 	err := json.NewDecoder(r.Body).Decode(&orderRun)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
@@ -163,7 +164,8 @@ func handleCreateOrder(w http.ResponseWriter, r *http.Request, orders map[string
 	log.Infof("POST request received on /api/createOrder: %s", orders[orderRun.OrderId])
 }
 
-func handleGetOrderRun(w http.ResponseWriter, r *http.Request, orders map[string]OrderRuns) {
+// Handles the GET request to /api/getOrderRun
+func handleGetOrderRun(w http.ResponseWriter, r *http.Request, orders map[string]OrderRun) {
 	// Get the orderId from the query string
 	orderId := r.URL.Query().Get("orderId")
 
@@ -181,7 +183,7 @@ func handleGetOrderRun(w http.ResponseWriter, r *http.Request, orders map[string
 	w.Write(jsonResponse)
 
 	// Log the GET request
-	log.Infof("GET request received on /api/getOrder: %s", orderId)
+	log.Infof("GET request received on /api/getOrderRun: %s", orderId)
 }
 
 func main() {
@@ -189,10 +191,15 @@ func main() {
 	var clients = make(map[*websocket.Conn]bool)
 
 	// Stores the orders that have been created.
-	var orders = make(map[string]OrderRuns)
+	var orders = make(map[string]OrderRun)
 
 	// Print a message to the console once the application starts
 	log.Info("HTTP server started on port 8000")
+
+	// Configure websocket route
+	http.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {
+		handleConnections(w, r, clients, orders)
+	})
 
 	// Create an API post route that will generate a random string whenever /api/createOrder is called
 	http.HandleFunc("/api/createOrder", func(w http.ResponseWriter, r *http.Request) {
@@ -202,11 +209,6 @@ func main() {
 	// Create an API get route that will return the orders map as a JSON object based on the orderId
 	http.HandleFunc("/api/getOrderRun", func(w http.ResponseWriter, r *http.Request) {
 		handleGetOrderRun(w, r, orders)
-	})
-
-	// Configure websocket route
-	http.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {
-		handleConnections(w, r, clients, orders)
 	})
 
 	// Start the server on localhost port 8000 and log any errors

@@ -3,7 +3,7 @@ import config from "../../config";
 
 const API_BASE_URL = config.api.baseUrl;
 
-const OrderForm = () => {
+const OrderRunForm = () => {
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -89,4 +89,4 @@ const OrderForm = () => {
   );
 };
 
-export default OrderForm;
+export default OrderRunForm;
