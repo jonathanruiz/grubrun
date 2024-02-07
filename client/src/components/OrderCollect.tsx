@@ -116,25 +116,36 @@ const OrderCollect = () => {
         </button>
       </form>
 
-      <h2>Order</h2>
-      <table>
-        <thead>
-          <tr className="text-left text-gray-500 text-sm uppercase font-medium tracking-wider">
-            <th className="w-1/2">Name</th>
-            <th className="w-1/2">Order</th>
-          </tr>
-        </thead>
-        <tbody>
-          {orderId &&
-            // @ts-expect-error - orderRun is not null
-            orderRun?.[orderId]?.orders?.map((order: Order) => (
-              <tr key={order.name}>
-                <td className="w-1/2">{order.name}</td>
-                <td className="w-1/2">{order.order}</td>
-              </tr>
-            ))}
-        </tbody>
-      </table>
+      <div className="pt-6 pb-8 mb-4 flex flex-col my-2">
+        <h3 className="text-gray-500 text-md uppercase font-bold tracking-wider">
+          Orders
+        </h3>
+        <table className="w-full">
+          <thead>
+            <tr className="text-left text-gray-500 text-sm uppercase font-bold tracking-wider">
+              <th className="w-1/2 py-2">Name</th>
+              <th className="w-1/2 py-2">Order</th>
+            </tr>
+          </thead>
+          <tbody>
+            {orderId &&
+              // @ts-expect-error - orderRun is not null
+              orderRun?.[orderId]?.orders?.map((order: Order) => (
+                <tr
+                  className="border-b-2 border-gray-200 py-2"
+                  key={order.name}
+                >
+                  <td className="w-1/2 text-gray-700 text-sm py-2">
+                    {order.name}
+                  </td>
+                  <td className="w-1/2 text-gray-700 text-sm py-2">
+                    {order.order}
+                  </td>
+                </tr>
+              ))}
+          </tbody>
+        </table>
+      </div>
     </>
   );
 };

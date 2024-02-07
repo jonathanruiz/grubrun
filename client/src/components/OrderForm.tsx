@@ -30,28 +30,49 @@ const OrderForm = () => {
 
   return (
     <form className="flex flex-col space-y-4" onSubmit={handleSubmit}>
-      <label htmlFor="name">Name</label>
+      <h2 className="text-2xl font-bold">Order Run Form</h2>
+      <label
+        className="text-gray-500 text-sm uppercase font-bold tracking-wider"
+        htmlFor="name"
+      >
+        Name
+      </label>
       <input
         className="border p-2"
         name="name"
         type="text"
         placeholder="Enter your name here"
       />
-      <label htmlFor="email">Email</label>
+      <label
+        className="text-gray-500 text-sm uppercase font-bold tracking-wider"
+        htmlFor="email"
+      >
+        Email
+      </label>
       <input
         className="border p-2"
         name="email"
         type="text"
         placeholder="Enter your email here"
       />
-      <label htmlFor="max">Maximum Order Size</label>
+      <label
+        className="text-gray-500 text-sm uppercase font-bold tracking-wider"
+        htmlFor="max"
+      >
+        Maximum Order Size
+      </label>
       <input
         className="border p-2"
         name="max"
         type="text"
         placeholder="Enter maximum order size"
       />
-      <label htmlFor="time">Time until leaving (in minutes)</label>
+      <label
+        className="text-gray-500 text-sm uppercase font-bold tracking-wider"
+        htmlFor="time"
+      >
+        Time until leaving (in minutes)
+      </label>
       <input
         className="border p-2"
         name="time"
