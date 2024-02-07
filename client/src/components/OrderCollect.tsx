@@ -21,9 +21,28 @@ const OrderCollect = () => {
   const { orderId } = useParams<{ orderId: string }>();
   const [ws, setWS] = useState<WebSocket | null>(null);
   const [orderRun, setOrderRun] = useState<OrderRun | null>(null);
-  const [canSubmitForm, setCanSubmitForm] = useState(true);
+  const [maxReached, setMaxReached] = useState(false);
 
   console.log("Here is the order: ", orderRun);
+
+  fetch(`${API_BASE_URL}/api/getOrderRun?orderId=${orderId}`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  })
+    .then((res) => {
+      return res.json();
+    })
+    .then((data: OrderRun) => {
+      // @ts-expect-error - data is not null
+      if (data[orderId].orders.length >= parseInt(data[orderId].max)) {
+        setMaxReached(true);
+      }
+    })
+    .catch((err) => {
+      console.error("Error was thrown:", err);
+    });
 
   useEffect(() => {
     const websocket = new WebSocket("ws://localhost:8000/ws");
@@ -99,7 +118,7 @@ const OrderCollect = () => {
         currentOrderRun.orders.length >= parseInt(currentOrderRun.max)
       ) {
         alert("Maximum number of orders reached for this run.");
-        setCanSubmitForm(false);
+        setMaxReached(true);
         return;
       }
     } else {
@@ -113,7 +132,11 @@ const OrderCollect = () => {
   };
   return (
     <>
-      {canSubmitForm ? (
+      {maxReached ? (
+        <h2 className="text-2xl font-bold">
+          Maximum number of orders reached for this run.
+        </h2>
+      ) : (
         <>
           <h2 className="text-2xl font-bold">Place your order here</h2>
           <form className="flex flex-col space-y-4" onSubmit={handleSubmit}>
@@ -139,10 +162,6 @@ const OrderCollect = () => {
             </button>
           </form>
         </>
-      ) : (
-        <h2 className="text-2xl font-bold">
-          Maximum number of orders reached for this run.
-        </h2>
       )}
 
       <div className="pt-6 pb-8 mb-4 flex flex-col my-2">
