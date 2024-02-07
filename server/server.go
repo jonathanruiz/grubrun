@@ -37,6 +37,9 @@ var upgrader = websocket.Upgrader{
 	},
 }
 
+// Create a map of WebSocket connections
+var clients = make(map[*websocket.Conn]bool)
+
 // Handles WebSocket connections.
 func handleConnections(w http.ResponseWriter, r *http.Request, orders map[string]OrderRuns) {
 	// Upgrade initial GET request to a WebSocket
@@ -49,6 +52,7 @@ func handleConnections(w http.ResponseWriter, r *http.Request, orders map[string
 
 	// Close the connection when the function returns
 	defer ws.Close()
+	clients[ws] = true
 
 	for {
 		// Read in a new message as JSON and map it to a Message object
@@ -91,6 +95,14 @@ func handleConnections(w http.ResponseWriter, r *http.Request, orders map[string
 			break
 		}
 
+		for client := range clients {
+			err := client.WriteJSON(orders)
+			if err != nil {
+				log.Printf("error: %v", err)
+				client.Close()
+				delete(clients, client)
+			}
+		}
 	}
 }
 
