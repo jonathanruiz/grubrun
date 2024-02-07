@@ -121,6 +121,7 @@ func generateRandomString() string {
 	return sb.String()
 }
 
+// Handles the POST request to /api/createOrder
 func handleCreateOrder(w http.ResponseWriter, r *http.Request, orders map[string]OrderRun) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
@@ -163,6 +164,7 @@ func handleCreateOrder(w http.ResponseWriter, r *http.Request, orders map[string
 	log.Infof("POST request received on /api/createOrder: %s", orders[orderRun.OrderId])
 }
 
+// Handles the GET request to /api/getOrderRun
 func handleGetOrderRun(w http.ResponseWriter, r *http.Request, orders map[string]OrderRun) {
 	// Get the orderId from the query string
 	orderId := r.URL.Query().Get("orderId")
@@ -181,7 +183,7 @@ func handleGetOrderRun(w http.ResponseWriter, r *http.Request, orders map[string
 	w.Write(jsonResponse)
 
 	// Log the GET request
-	log.Infof("GET request received on /api/getOrder: %s", orderId)
+	log.Infof("GET request received on /api/getOrderRun: %s", orderId)
 }
 
 func main() {
@@ -194,6 +196,11 @@ func main() {
 	// Print a message to the console once the application starts
 	log.Info("HTTP server started on port 8000")
 
+	// Configure websocket route
+	http.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {
+		handleConnections(w, r, clients, orders)
+	})
+
 	// Create an API post route that will generate a random string whenever /api/createOrder is called
 	http.HandleFunc("/api/createOrder", func(w http.ResponseWriter, r *http.Request) {
 		handleCreateOrder(w, r, orders)
@@ -202,11 +209,6 @@ func main() {
 	// Create an API get route that will return the orders map as a JSON object based on the orderId
 	http.HandleFunc("/api/getOrderRun", func(w http.ResponseWriter, r *http.Request) {
 		handleGetOrderRun(w, r, orders)
-	})
-
-	// Configure websocket route
-	http.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {
-		handleConnections(w, r, clients, orders)
 	})
 
 	// Start the server on localhost port 8000 and log any errors
