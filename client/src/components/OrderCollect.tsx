@@ -21,6 +21,7 @@ const OrderCollect = () => {
   const { orderId } = useParams<{ orderId: string }>();
   const [ws, setWS] = useState<WebSocket | null>(null);
   const [orderRun, setOrderRun] = useState<OrderRun | null>(null);
+  const [canSubmitForm, setCanSubmitForm] = useState(true);
 
   console.log("Here is the order: ", orderRun);
 
@@ -98,7 +99,7 @@ const OrderCollect = () => {
         currentOrderRun.orders.length >= parseInt(currentOrderRun.max)
       ) {
         alert("Maximum number of orders reached for this run.");
-
+        setCanSubmitForm(false);
         return;
       }
     } else {
@@ -112,29 +113,37 @@ const OrderCollect = () => {
   };
   return (
     <>
-      <h2>Place your order here</h2>
-      <form className="flex flex-col space-y-4" onSubmit={handleSubmit}>
-        <label htmlFor="name">Name</label>
-        <input
-          className="border p-2"
-          name="name"
-          type="text"
-          placeholder="Enter your name here"
-        />
-        <label htmlFor="order">Order</label>
-        <input
-          className="border p-2"
-          name="order"
-          type="text"
-          placeholder="Enter your order here"
-        />
-        <button
-          className="bg-blue-500 text-white self-start py-2 px-4 rounded"
-          type="submit"
-        >
-          Submit
-        </button>
-      </form>
+      {canSubmitForm ? (
+        <>
+          <h2 className="text-2xl font-bold">Place your order here</h2>
+          <form className="flex flex-col space-y-4" onSubmit={handleSubmit}>
+            <label htmlFor="name">Name</label>
+            <input
+              className="border p-2"
+              name="name"
+              type="text"
+              placeholder="Enter your name here"
+            />
+            <label htmlFor="order">Order</label>
+            <input
+              className="border p-2"
+              name="order"
+              type="text"
+              placeholder="Enter your order here"
+            />
+            <button
+              className="bg-blue-500 text-white self-start py-2 px-4 rounded"
+              type="submit"
+            >
+              Submit
+            </button>
+          </form>
+        </>
+      ) : (
+        <h2 className="text-2xl font-bold">
+          Maximum number of orders reached for this run.
+        </h2>
+      )}
 
       <div className="pt-6 pb-8 mb-4 flex flex-col my-2">
         <h3 className="text-gray-500 text-md uppercase font-bold tracking-wider">
