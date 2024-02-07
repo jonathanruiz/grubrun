@@ -37,11 +37,8 @@ var upgrader = websocket.Upgrader{
 	},
 }
 
-// Create a map of WebSocket connections
-var clients = make(map[*websocket.Conn]bool)
-
 // Handles WebSocket connections.
-func handleConnections(w http.ResponseWriter, r *http.Request, orders map[string]OrderRuns) {
+func handleConnections(w http.ResponseWriter, r *http.Request, clients map[*websocket.Conn]bool, orders map[string]OrderRuns) {
 	// Upgrade initial GET request to a WebSocket
 	ws, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
@@ -166,7 +163,31 @@ func handleCreateOrder(w http.ResponseWriter, r *http.Request, orders map[string
 	log.Infof("POST request received on /api/createOrder: %s", orders[orderRun.OrderId])
 }
 
+func handleGetOrderRun(w http.ResponseWriter, r *http.Request, orders map[string]OrderRuns) {
+	// Get the orderId from the query string
+	orderId := r.URL.Query().Get("orderId")
+
+	// Marshal the OrderRuns object into a JSON object
+	jsonResponse, err := json.Marshal(orders)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	// Set the content type to application/json
+	w.Header().Set("Content-Type", "application/json")
+
+	// Send the JSON response back to the client
+	w.Write(jsonResponse)
+
+	// Log the GET request
+	log.Infof("GET request received on /api/getOrder: %s", orderId)
+}
+
 func main() {
+	// Create a map of WebSocket connections
+	var clients = make(map[*websocket.Conn]bool)
+
 	// Stores the orders that have been created.
 	var orders = make(map[string]OrderRuns)
 
@@ -180,29 +201,12 @@ func main() {
 
 	// Create an API get route that will return the orders map as a JSON object based on the orderId
 	http.HandleFunc("/api/getOrderRun", func(w http.ResponseWriter, r *http.Request) {
-		// Get the orderId from the query string
-		orderId := r.URL.Query().Get("orderId")
-
-		// Marshal the OrderRuns object into a JSON object
-		jsonResponse, err := json.Marshal(orders)
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-
-		// Set the content type to application/json
-		w.Header().Set("Content-Type", "application/json")
-
-		// Send the JSON response back to the client
-		w.Write(jsonResponse)
-
-		// Log the GET request
-		log.Infof("GET request received on /api/getOrder: %s", orderId)
+		handleGetOrderRun(w, r, orders)
 	})
 
 	// Configure websocket route
 	http.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {
-		handleConnections(w, r, orders)
+		handleConnections(w, r, clients, orders)
 	})
 
 	// Start the server on localhost port 8000 and log any errors
