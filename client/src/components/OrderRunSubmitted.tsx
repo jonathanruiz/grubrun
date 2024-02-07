@@ -3,7 +3,7 @@ import config from "../../config";
 
 const CLIENT_BASE_URL = config.client.baseUrl;
 
-const OrderSubmitted = () => {
+const OrderRunSubmitted = () => {
   const location = useLocation();
   const { orderId, name, email, max, time } = location.state;
 
@@ -67,4 +67,4 @@ const OrderSubmitted = () => {
   );
 };
 
-export default OrderSubmitted;
+export default OrderRunSubmitted;
