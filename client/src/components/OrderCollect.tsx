@@ -86,6 +86,26 @@ const OrderCollect = () => {
     // Add the orderId to the JSON data
     jsonData.orderId = orderId || "";
 
+    // Check if orderId is defined
+    if (orderId !== undefined) {
+      // @ts-expect-error - Get the current OrderRun
+      const currentOrderRun = orderRun[orderId];
+
+      // Check if the currentOrderRun and its orders property are defined
+      if (
+        currentOrderRun &&
+        currentOrderRun.orders &&
+        currentOrderRun.orders.length >= parseInt(currentOrderRun.max)
+      ) {
+        alert("Maximum number of orders reached for this run.");
+
+        return;
+      }
+    } else {
+      alert("Order ID is not defined.");
+      return;
+    }
+
     if (ws) {
       ws.send(JSON.stringify(jsonData));
     }
