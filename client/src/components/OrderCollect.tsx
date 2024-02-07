@@ -23,8 +23,6 @@ const OrderCollect = () => {
   const [orderRun, setOrderRun] = useState<OrderRun | null>(null);
   const [maxReached, setMaxReached] = useState(false);
 
-  console.log("Here is the order: ", orderRun);
-
   fetch(`${API_BASE_URL}/api/getOrderRun?orderId=${orderId}`, {
     method: "GET",
     headers: {
@@ -130,6 +128,7 @@ const OrderCollect = () => {
       ws.send(JSON.stringify(jsonData));
     }
   };
+
   return (
     <>
       {maxReached ? (
