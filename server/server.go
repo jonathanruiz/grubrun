@@ -15,8 +15,8 @@ type OrderRun struct {
 	Owner     string  `json:"name"`
 	Email     string  `json:"email"`
 	Location  string  `json:"location"`
-	MaxOrder  string  `json:"max"`
-	TimeLimit string  `json:"time"`
+	MaxOrder  int     `json:"max"`
+	TimeLimit int     `json:"time"`
 	Orders    []Order `json:"orders"`
 }
 
@@ -84,7 +84,7 @@ func handleConnections(w http.ResponseWriter, r *http.Request, clients map[*webs
 		orders[order.OrderId] = orderRuns
 
 		// Log the orders object
-		log.Infof("Orders object: %s", orders)
+		// log.Infof("Orders object: %s", orders)
 
 		// Send the orders object back to the client
 		err = ws.WriteJSON(orders)
@@ -162,7 +162,7 @@ func handleCreateOrder(w http.ResponseWriter, r *http.Request, orders map[string
 	w.Write(jsonResponse)
 
 	// Log the POST request
-	log.Infof("POST request received on /api/createOrder: %s", orders[orderRun.OrderId])
+	// log.Infof("POST request received on /api/createOrder: %s", orders[orderRun.OrderId])
 }
 
 // Handles the GET request to /api/getOrderRun

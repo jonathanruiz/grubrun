@@ -13,6 +13,11 @@ const OrderRunForm = () => {
     // Create a JavaScript object with the form data
     const jsonData = Object.fromEntries(data.entries());
 
+    // @ts-expect-error - Convert the time and max properties to numbers
+    jsonData.time = Number(jsonData.time);
+    // @ts-expect-error - Convert the time and max properties to numbers
+    jsonData.max = Number(jsonData.max);
+
     const response = await fetch(`${API_BASE_URL}/api/createOrder`, {
       method: "POST",
       headers: {
@@ -76,7 +81,7 @@ const OrderRunForm = () => {
       <input
         className="border p-2"
         name="max"
-        type="text"
+        type="number"
         placeholder="Enter maximum order size"
       />
       <label
@@ -88,7 +93,7 @@ const OrderRunForm = () => {
       <input
         className="border p-2"
         name="time"
-        type="text"
+        type="number"
         placeholder="Enter minutes until leaving"
       />
       <button

@@ -9,8 +9,8 @@ interface OrderRun {
   name: string;
   email: string;
   location: string;
-  max: string;
-  time: string;
+  max: number;
+  time: number;
   orders: Order[];
 }
 interface Order {
@@ -35,7 +35,7 @@ const OrderCollect = () => {
     })
     .then((data: OrderRun) => {
       // @ts-expect-error - data is not null
-      if (data[orderId].orders.length >= parseInt(data[orderId].max)) {
+      if (data[orderId].orders.length >= data[orderId].max) {
         setMaxReached(true);
       }
     })
@@ -114,7 +114,7 @@ const OrderCollect = () => {
       if (
         currentOrderRun &&
         currentOrderRun.orders &&
-        currentOrderRun.orders.length >= parseInt(currentOrderRun.max)
+        currentOrderRun.orders.length >= currentOrderRun.max
       ) {
         alert("Maximum number of orders reached for this run.");
         setMaxReached(true);
