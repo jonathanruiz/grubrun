@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Order, OrderRun, OrderFormSchema } from "../models/schemas";
+import { OrderProps, OrderRunProps, OrderFormSchema } from "../models/schemas";
 import config from "../../config";
 
 const API_BASE_URL = config.api.baseUrl;
@@ -10,14 +10,14 @@ const API_BASE_URL = config.api.baseUrl;
 const OrderCollect = () => {
   const { orderId } = useParams<{ orderId: string }>();
   const [ws, setWS] = useState<WebSocket>();
-  const [orderRun, setOrderRun] = useState<OrderRun>();
+  const [orderRun, setOrderRun] = useState<OrderRunProps>();
   const [maxReached, setMaxReached] = useState(false);
 
   const {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<Order>({
+  } = useForm<OrderProps>({
     resolver: zodResolver(OrderFormSchema),
   });
 
@@ -30,7 +30,7 @@ const OrderCollect = () => {
     .then((res) => {
       return res.json();
     })
-    .then((data: Order) => {
+    .then((data: OrderProps) => {
       // @ts-expect-error - data is not null
       if (data[orderId].orders.length >= data[orderId].max) {
         setMaxReached(true);
@@ -93,7 +93,7 @@ const OrderCollect = () => {
     };
   }, [orderId]);
 
-  const submitForm: SubmitHandler<Order> = async (data: Order) => {
+  const submitForm: SubmitHandler<OrderProps> = async (data: OrderProps) => {
     console.log("Submitting order");
     const jsonData = {
       ...data,
@@ -128,6 +128,20 @@ const OrderCollect = () => {
     }
   };
 
+  // @ts-expect-error - orderRun is not null
+  const [timeRemaining, setTimeRemaining] = useState(orderRun?.[orderId]?.time);
+  console.log("Time remaining:", timeRemaining);
+
+  useEffect(() => {
+    if (timeRemaining > 0) {
+      const timerId = setInterval(() => {
+        setTimeRemaining(timeRemaining - 1);
+      }, 1000);
+
+      return () => clearInterval(timerId); // cleanup on component unmount
+    }
+  }, [timeRemaining]);
+
   return (
     <>
       {maxReached ? (
@@ -144,7 +158,7 @@ const OrderCollect = () => {
             </span>
           </h2>
           {/* Create a timer that counts down using the time property */}
-          <h3 className="text-xl font-bold">Time remaining: </h3>
+          <h3 className="text-xl font-bold">Time remaining: {timeRemaining}</h3>
           <form
             className="flex flex-col space-y-4"
             onSubmit={handleSubmit(submitForm)}

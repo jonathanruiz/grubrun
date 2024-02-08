@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-export interface OrderRunForm {
+export interface OrderRunFormProps {
   name: string;
   email: string;
   location: string;
@@ -8,16 +8,16 @@ export interface OrderRunForm {
   time: number;
 }
 
-export interface OrderRun {
+export interface OrderRunProps {
   orderId: string;
   name: string;
   email: string;
   location: string;
   max: number;
   time: number;
-  orders: Order[];
+  orders: OrderProps[];
 }
-export interface Order {
+export interface OrderProps {
   name: string;
   order: string;
 }

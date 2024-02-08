@@ -39,7 +39,7 @@ var upgrader = websocket.Upgrader{
 }
 
 // Handles WebSocket connections.
-func handleConnections(w http.ResponseWriter, r *http.Request, clients map[*websocket.Conn]bool, orders map[string]OrderRun) {
+func handleConnections(w http.ResponseWriter, r *http.Request, clients map[*websocket.Conn]bool, broadcast chan int, orders map[string]OrderRun) {
 	// Upgrade initial GET request to a WebSocket
 	ws, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
@@ -93,7 +93,11 @@ func handleConnections(w http.ResponseWriter, r *http.Request, clients map[*webs
 			break
 		}
 
+		// Wait for next update from the broadcast channel
+		// timeRemaining := <-broadcast
+
 		for client := range clients {
+
 			err := client.WriteJSON(orders)
 			if err != nil {
 				log.Printf("error: %v", err)
@@ -123,7 +127,7 @@ func generateRandomString() string {
 }
 
 // Handles the POST request to /api/createOrder
-func handleCreateOrder(w http.ResponseWriter, r *http.Request, orders map[string]OrderRun) {
+func handleCreateOrder(w http.ResponseWriter, r *http.Request, broadcast chan int, orders map[string]OrderRun) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
 		return
@@ -155,6 +159,8 @@ func handleCreateOrder(w http.ResponseWriter, r *http.Request, orders map[string
 		return
 	}
 
+	// startTimer(orderRun.TimeLimit, broadcast)
+
 	// Set the content type to application/json
 	w.Header().Set("Content-Type", "application/json")
 
@@ -164,6 +170,20 @@ func handleCreateOrder(w http.ResponseWriter, r *http.Request, orders map[string
 	// Log the POST request
 	// log.Infof("POST request received on /api/createOrder: %s", orders[orderRun.OrderId])
 }
+
+// Starts a timer that will send the time remaining to the broadcast channel every second
+// func startTimer(initialTime int, broadcast chan int) {
+// 	timeRemaining := initialTime
+// 	ticker := time.NewTicker(1 * time.Second)
+
+// 	go func() {
+// 		for range ticker.C {
+// 			timeRemaining -= 1
+// 			broadcast <- timeRemaining
+// 		}
+// 	}()
+
+// }
 
 // Handles the GET request to /api/getOrderRun
 func handleGetOrderRun(w http.ResponseWriter, r *http.Request, orders map[string]OrderRun) {
@@ -190,6 +210,7 @@ func handleGetOrderRun(w http.ResponseWriter, r *http.Request, orders map[string
 func main() {
 	// Create a map of WebSocket connections
 	var clients = make(map[*websocket.Conn]bool)
+	var broadcast = make(chan int) // broadcast channel
 
 	// Stores the orders that have been created.
 	var orders = make(map[string]OrderRun)
@@ -199,12 +220,12 @@ func main() {
 
 	// Configure websocket route
 	http.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {
-		handleConnections(w, r, clients, orders)
+		handleConnections(w, r, clients, broadcast, orders)
 	})
 
 	// Create an API post route that will generate a random string whenever /api/createOrder is called
 	http.HandleFunc("/api/createOrder", func(w http.ResponseWriter, r *http.Request) {
-		handleCreateOrder(w, r, orders)
+		handleCreateOrder(w, r, broadcast, orders)
 	})
 
 	// Create an API get route that will return the orders map as a JSON object based on the orderId
