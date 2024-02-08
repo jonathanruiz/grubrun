@@ -27,12 +27,6 @@ const OrderRunForm = () => {
 
   // @ts-expect-error - data is not null
   const submitForm = async (data) => {
-    // Create a JavaScript object with the form data
-    // const jsonData = Object.fromEntries(data.entries());
-
-    console.log(data);
-    // console.log(jsonData);
-
     const response = await fetch(`${API_BASE_URL}/api/createOrder`, {
       method: "POST",
       headers: {
