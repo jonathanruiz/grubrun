@@ -190,7 +190,7 @@ const OrderCollect = () => {
             </tr>
           </thead>
           <tbody>
-            {orderId &&
+            {
               // @ts-expect-error - orderRun is not null
               orderRun?.[orderId]?.orders?.map((order: Order) => (
                 <tr
@@ -204,7 +204,8 @@ const OrderCollect = () => {
                     {order.order}
                   </td>
                 </tr>
-              ))}
+              ))
+            }
           </tbody>
         </table>
       </div>
