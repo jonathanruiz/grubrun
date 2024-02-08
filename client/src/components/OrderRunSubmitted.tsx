@@ -4,8 +4,8 @@ import config from "../../config";
 const CLIENT_BASE_URL = config.client.baseUrl;
 
 const OrderRunSubmitted = () => {
-  const location = useLocation();
-  const { orderId, name, email, max, time } = location.state;
+  const locationState = useLocation();
+  const { orderId, name, email, location, max, time } = locationState.state;
 
   return (
     <div>
@@ -48,6 +48,12 @@ const OrderRunSubmitted = () => {
               Email:
             </span>{" "}
             <span>{email}</span>
+          </li>
+          <li className="border-b-2 border-gray-200 py-2 flex justify-between items-center">
+            <span className="text-gray-500 uppercase font-bold tracking-wider">
+              Where are you going?:
+            </span>{" "}
+            <span>{location}</span>
           </li>
           <li className="border-b-2 border-gray-200 py-2 flex justify-between items-center">
             <span className="text-gray-500 uppercase font-bold tracking-wider">
