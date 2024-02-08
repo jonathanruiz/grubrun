@@ -145,6 +145,8 @@ const OrderCollect = () => {
               {orderRun?.[orderId]?.location}
             </span>
           </h2>
+          {/* Create a timer that counts down using the time property */}
+          <h3 className="text-xl font-bold">Time remaining: </h3>
           <form className="flex flex-col space-y-4" onSubmit={handleSubmit}>
             <label htmlFor="name">Name</label>
             <input
