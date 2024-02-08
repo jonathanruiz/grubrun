@@ -1,11 +1,18 @@
 import { useNavigate } from "react-router-dom";
-import { useForm } from "react-hook-form";
+import { useForm, SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as zod from "zod";
-
 import config from "../../config";
 
 const API_BASE_URL = config.api.baseUrl;
+
+interface OrderRunFormProps {
+  name: string;
+  email: string;
+  location: string;
+  max: number;
+  time: number;
+}
 
 const schema = zod.object({
   name: zod.string(),
@@ -21,12 +28,13 @@ const OrderRunForm = () => {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm({
+  } = useForm<OrderRunFormProps>({
     resolver: zodResolver(schema),
   });
 
-  // @ts-expect-error - data is not null
-  const submitForm = async (data) => {
+  const submitForm: SubmitHandler<OrderRunFormProps> = async (
+    data: OrderRunFormProps
+  ) => {
     const response = await fetch(`${API_BASE_URL}/api/createOrder`, {
       method: "POST",
       headers: {
@@ -60,7 +68,6 @@ const OrderRunForm = () => {
         placeholder="Enter your name here"
         {...register("name")}
       />
-      {/* @ts-expect-error - error */}
       {errors.name && <p className="text-red-500">{errors.name.message}</p>}
 
       <label
@@ -75,7 +82,6 @@ const OrderRunForm = () => {
         placeholder="Enter your email here"
         {...register("email")}
       />
-      {/* @ts-expect-error - error */}
       {errors.email && <p className="text-red-500">{errors.email.message}</p>}
 
       <label
@@ -91,7 +97,6 @@ const OrderRunForm = () => {
         {...register("location")}
       />
       {errors.location && (
-        // @ts-expect-error - error
         <p className="text-red-500">{errors.location.message}</p>
       )}
 
@@ -107,7 +112,6 @@ const OrderRunForm = () => {
         placeholder="Enter maximum order size"
         {...register("max", { valueAsNumber: true })}
       />
-      {/* @ts-expect-error - error */}
       {errors.max && <p className="text-red-500">{errors.max.message}</p>}
 
       <label
@@ -122,7 +126,6 @@ const OrderRunForm = () => {
         placeholder="Enter minutes until leaving"
         {...register("time", { valueAsNumber: true })}
       />
-      {/* @ts-expect-error - error */}
       {errors.time && <p className="text-red-500">{errors.time.message}</p>}
 
       <button
