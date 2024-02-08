@@ -15,3 +15,17 @@ export const OrderRunFormSchema = z.object({
   max: z.number(),
   time: z.number(),
 });
+
+export interface OrderRun {
+  orderId: string;
+  name: string;
+  email: string;
+  location: string;
+  max: number;
+  time: number;
+  orders: Order[];
+}
+export interface Order {
+  name: string;
+  order: string;
+}

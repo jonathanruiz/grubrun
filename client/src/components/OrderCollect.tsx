@@ -1,22 +1,9 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import config from "../../config";
+import { Order, OrderRun } from "../models/schemas";
 
 const API_BASE_URL = config.api.baseUrl;
-
-interface OrderRun {
-  orderId: string;
-  name: string;
-  email: string;
-  location: string;
-  max: number;
-  time: number;
-  orders: Order[];
-}
-interface Order {
-  name: string;
-  order: string;
-}
 
 const OrderCollect = () => {
   const { orderId } = useParams<{ orderId: string }>();
