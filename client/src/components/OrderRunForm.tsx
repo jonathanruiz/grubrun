@@ -57,6 +57,18 @@ const OrderRunForm = () => {
       />
       <label
         className="text-gray-500 text-sm uppercase font-bold tracking-wider"
+        htmlFor="locaiton"
+      >
+        Where are you going?
+      </label>
+      <input
+        className="border p-2"
+        name="location"
+        type="text"
+        placeholder="Enter location here"
+      />
+      <label
+        className="text-gray-500 text-sm uppercase font-bold tracking-wider"
         htmlFor="max"
       >
         Maximum Order Size
