@@ -171,9 +171,17 @@ const OrderCollect = () => {
       )}
 
       <div className="pt-6 pb-8 mb-4 flex flex-col my-2">
-        <h3 className="text-gray-500 text-md uppercase font-bold tracking-wider">
-          Orders
-        </h3>
+        <div className="flex justify-between text-gray-500 text-md uppercase font-bold tracking-wider">
+          <h3 className="text-gray-500 text-md uppercase font-bold tracking-wider">
+            Orders
+          </h3>
+          <p>
+            {/* @ts-expect-error - orderRun is not null */}
+            {orderRun?.[orderId]?.orders?.length ?? 0}/
+            {/* @ts-expect-error - orderRun is not null */}
+            {orderRun?.[orderId]?.max}
+          </p>
+        </div>
         <table className="w-full">
           <thead>
             <tr className="text-left text-gray-500 text-sm uppercase font-bold tracking-wider">
