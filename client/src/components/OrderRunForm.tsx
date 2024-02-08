@@ -5,6 +5,8 @@ import * as zod from "zod";
 
 import config from "../../config";
 
+const API_BASE_URL = config.api.baseUrl;
+
 const schema = zod.object({
   name: zod.string(),
   email: zod.string().email(),
@@ -12,8 +14,6 @@ const schema = zod.object({
   max: zod.number(),
   time: zod.number(),
 });
-
-const API_BASE_URL = config.api.baseUrl;
 
 const OrderRunForm = () => {
   const navigate = useNavigate();
