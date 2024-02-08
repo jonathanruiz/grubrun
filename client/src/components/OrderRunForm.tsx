@@ -1,26 +1,10 @@
 import { useNavigate } from "react-router-dom";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import * as zod from "zod";
+import { OrderRunFormSchema, OrderRunFormProps } from "../models/schemas";
 import config from "../../config";
 
 const API_BASE_URL = config.api.baseUrl;
-
-interface OrderRunFormProps {
-  name: string;
-  email: string;
-  location: string;
-  max: number;
-  time: number;
-}
-
-const schema = zod.object({
-  name: zod.string(),
-  email: zod.string().email(),
-  location: zod.string(),
-  max: zod.number(),
-  time: zod.number(),
-});
 
 const OrderRunForm = () => {
   const navigate = useNavigate();
@@ -29,7 +13,7 @@ const OrderRunForm = () => {
     handleSubmit,
     formState: { errors },
   } = useForm<OrderRunFormProps>({
-    resolver: zodResolver(schema),
+    resolver: zodResolver(OrderRunFormSchema),
   });
 
   const submitForm: SubmitHandler<OrderRunFormProps> = async (
