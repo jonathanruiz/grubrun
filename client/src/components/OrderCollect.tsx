@@ -8,6 +8,7 @@ interface OrderRun {
   orderId: string;
   name: string;
   email: string;
+  location: string;
   max: string;
   time: string;
   orders: Order[];
@@ -137,7 +138,13 @@ const OrderCollect = () => {
         </h2>
       ) : (
         <>
-          <h2 className="text-2xl font-bold">Place your order here</h2>
+          <h2 className="text-2xl font-bold">
+            Place your order here for{" "}
+            <span className="bg-blue-500 text-white p-2 rounded-lg">
+              {/* @ts-expect-error - orderRun is not null */}
+              {orderRun?.[orderId]?.location}
+            </span>
+          </h2>
           <form className="flex flex-col space-y-4" onSubmit={handleSubmit}>
             <label htmlFor="name">Name</label>
             <input

@@ -14,6 +14,7 @@ type OrderRun struct {
 	OrderId   string  `json:"orderId"`
 	Owner     string  `json:"name"`
 	Email     string  `json:"email"`
+	Location  string  `json:"location"`
 	MaxOrder  string  `json:"max"`
 	TimeLimit string  `json:"time"`
 	Orders    []Order `json:"orders"`
