@@ -1,15 +1,25 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
+import { useForm, SubmitHandler } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Order, OrderRun, OrderFormSchema } from "../models/schemas";
 import config from "../../config";
-import { Order, OrderRun } from "../models/schemas";
 
 const API_BASE_URL = config.api.baseUrl;
 
 const OrderCollect = () => {
   const { orderId } = useParams<{ orderId: string }>();
-  const [ws, setWS] = useState<WebSocket | null>(null);
-  const [orderRun, setOrderRun] = useState<OrderRun | null>(null);
+  const [ws, setWS] = useState<WebSocket>();
+  const [orderRun, setOrderRun] = useState<OrderRun>();
   const [maxReached, setMaxReached] = useState(false);
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<Order>({
+    resolver: zodResolver(OrderFormSchema),
+  });
 
   fetch(`${API_BASE_URL}/api/getOrderRun?orderId=${orderId}`, {
     method: "GET",
@@ -20,7 +30,7 @@ const OrderCollect = () => {
     .then((res) => {
       return res.json();
     })
-    .then((data: OrderRun) => {
+    .then((data: Order) => {
       // @ts-expect-error - data is not null
       if (data[orderId].orders.length >= data[orderId].max) {
         setMaxReached(true);
@@ -83,11 +93,12 @@ const OrderCollect = () => {
     };
   }, [orderId]);
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  const submitForm: SubmitHandler<Order> = async (data: Order) => {
     console.log("Submitting order");
-    const data = new FormData(e.currentTarget);
-    const jsonData = Object.fromEntries(data.entries());
+    const jsonData = {
+      ...data,
+      orderId: orderId,
+    };
 
     // Add the orderId to the JSON data
     jsonData.orderId = orderId || "";
@@ -134,21 +145,32 @@ const OrderCollect = () => {
           </h2>
           {/* Create a timer that counts down using the time property */}
           <h3 className="text-xl font-bold">Time remaining: </h3>
-          <form className="flex flex-col space-y-4" onSubmit={handleSubmit}>
+          <form
+            className="flex flex-col space-y-4"
+            onSubmit={handleSubmit(submitForm)}
+          >
             <label htmlFor="name">Name</label>
             <input
               className="border p-2"
-              name="name"
               type="text"
               placeholder="Enter your name here"
+              {...register("name")}
             />
+            {errors.name && (
+              <p className="text-red-500">{errors.name.message}</p>
+            )}
+
             <label htmlFor="order">Order</label>
             <input
               className="border p-2"
-              name="order"
               type="text"
               placeholder="Enter your order here"
+              {...register("order")}
             />
+            {errors.order && (
+              <p className="text-red-500">{errors.order.message}</p>
+            )}
+
             <button
               className="bg-blue-500 text-white self-start py-2 px-4 rounded"
               type="submit"

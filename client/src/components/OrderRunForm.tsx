@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { OrderRunFormSchema, OrderRunFormProps } from "../models/schemas";
+import { OrderRunFormSchema, OrderRunForm } from "../models/schemas";
 import config from "../../config";
 
 const API_BASE_URL = config.api.baseUrl;
@@ -12,12 +12,12 @@ const OrderRunForm = () => {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<OrderRunFormProps>({
+  } = useForm<OrderRunForm>({
     resolver: zodResolver(OrderRunFormSchema),
   });
 
-  const submitForm: SubmitHandler<OrderRunFormProps> = async (
-    data: OrderRunFormProps
+  const submitForm: SubmitHandler<OrderRunForm> = async (
+    data: OrderRunForm
   ) => {
     const response = await fetch(`${API_BASE_URL}/api/createOrder`, {
       method: "POST",
