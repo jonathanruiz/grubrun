@@ -162,6 +162,7 @@ const OrderCollect = () => {
           <form
             className="flex flex-col space-y-4"
             onSubmit={handleSubmit(submitForm)}
+            autoComplete="off"
           >
             <label htmlFor="name">Name</label>
             <input
