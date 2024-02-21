@@ -83,18 +83,12 @@ func handleConnections(w http.ResponseWriter, r *http.Request, clients map[*webs
 		// Put the modified OrderRuns object back into the orders map
 		orders[order.OrderId] = orderRuns
 
-		// Log the orders object
-		// log.Infof("Orders object: %s", orders)
-
 		// Send the orders object back to the client
 		err = ws.WriteJSON(orders)
 		if err != nil {
 			log.Warn(err)
 			break
 		}
-
-		// Wait for next update from the broadcast channel
-		// timeRemaining := <-broadcast
 
 		for client := range clients {
 
@@ -159,31 +153,12 @@ func handleCreateOrder(w http.ResponseWriter, r *http.Request, broadcast chan in
 		return
 	}
 
-	// startTimer(orderRun.TimeLimit, broadcast)
-
 	// Set the content type to application/json
 	w.Header().Set("Content-Type", "application/json")
 
 	// Send the JSON response back to the client
 	w.Write(jsonResponse)
-
-	// Log the POST request
-	// log.Infof("POST request received on /api/createOrder: %s", orders[orderRun.OrderId])
 }
-
-// Starts a timer that will send the time remaining to the broadcast channel every second
-// func startTimer(initialTime int, broadcast chan int) {
-// 	timeRemaining := initialTime
-// 	ticker := time.NewTicker(1 * time.Second)
-
-// 	go func() {
-// 		for range ticker.C {
-// 			timeRemaining -= 1
-// 			broadcast <- timeRemaining
-// 		}
-// 	}()
-
-// }
 
 // Handles the GET request to /api/getOrderRun
 func handleGetOrderRun(w http.ResponseWriter, r *http.Request, orders map[string]OrderRun) {
