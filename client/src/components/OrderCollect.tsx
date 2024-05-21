@@ -128,20 +128,6 @@ const OrderCollect = () => {
     }
   };
 
-  // @ts-expect-error - orderRun is not null
-  const [timeRemaining, setTimeRemaining] = useState(orderRun?.[orderId]?.time);
-  console.log("Time remaining:", timeRemaining);
-
-  useEffect(() => {
-    if (timeRemaining > 0) {
-      const timerId = setInterval(() => {
-        setTimeRemaining(timeRemaining - 1);
-      }, 1000);
-
-      return () => clearInterval(timerId); // cleanup on component unmount
-    }
-  }, [timeRemaining]);
-
   return (
     <>
       {maxReached ? (
@@ -157,8 +143,6 @@ const OrderCollect = () => {
               {orderRun?.[orderId]?.location}
             </span>
           </h2>
-          {/* Create a timer that counts down using the time property */}
-          <h3 className="text-xl font-bold">Time remaining: {timeRemaining}</h3>
           <form
             className="flex flex-col space-y-4"
             onSubmit={handleSubmit(submitForm)}

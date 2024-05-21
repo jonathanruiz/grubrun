@@ -97,21 +97,6 @@ const OrderRunForm = () => {
         placeholder="Enter maximum order size"
         {...register("max", { valueAsNumber: true })}
       />
-      {errors.max && <p className="text-red-500">{errors.max.message}</p>}
-
-      <label
-        className="text-gray-500 text-sm uppercase font-bold tracking-wider"
-        htmlFor="time"
-      >
-        Time until leaving (in minutes)
-      </label>
-      <input
-        className="border p-2"
-        type="number"
-        placeholder="Enter minutes until leaving"
-        {...register("time", { valueAsNumber: true })}
-      />
-      {errors.time && <p className="text-red-500">{errors.time.message}</p>}
 
       <button
         className="bg-blue-500 text-white self-start py-2 px-4 rounded"

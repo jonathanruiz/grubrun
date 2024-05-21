@@ -11,13 +11,12 @@ import (
 )
 
 type OrderRun struct {
-	OrderId   string  `json:"orderId"`
-	Owner     string  `json:"name"`
-	Email     string  `json:"email"`
-	Location  string  `json:"location"`
-	MaxOrder  int     `json:"max"`
-	TimeLimit int     `json:"time"`
-	Orders    []Order `json:"orders"`
+	OrderId  string  `json:"orderId"`
+	Owner    string  `json:"name"`
+	Email    string  `json:"email"`
+	Location string  `json:"location"`
+	MaxOrder int     `json:"max"`
+	Orders   []Order `json:"orders"`
 }
 
 type Order struct {

@@ -5,7 +5,6 @@ export interface OrderRunFormProps {
   email: string;
   location: string;
   max: number;
-  time: number;
 }
 
 export interface OrderRunProps {
@@ -14,7 +13,6 @@ export interface OrderRunProps {
   email: string;
   location: string;
   max: number;
-  time: number;
   orders: OrderProps[];
 }
 export interface OrderProps {
@@ -27,7 +25,6 @@ export const OrderRunFormSchema = z.object({
   email: z.string().email(),
   location: z.string(),
   max: z.number(),
-  time: z.number(),
 });
 
 export const OrderFormSchema = z.object({

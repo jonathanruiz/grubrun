@@ -61,12 +61,6 @@ const OrderRunSubmitted = () => {
             </span>{" "}
             <span>{max}</span>
           </li>
-          <li className="border-b-2 border-gray-200 py-2 flex justify-between items-center">
-            <span className="text-gray-500 uppercase font-bold tracking-wider">
-              Time until leaving:
-            </span>{" "}
-            <span>{time}</span>
-          </li>
         </ul>
       </div>
     </div>
