@@ -1,24 +1,30 @@
 import { useNavigate } from "react-router-dom";
+import { useForm, SubmitHandler } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { OrderRunFormSchema, OrderRunFormProps } from "../models/schemas";
 import config from "../../config";
 
 const API_BASE_URL = config.api.baseUrl;
 
 const OrderRunForm = () => {
   const navigate = useNavigate();
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<OrderRunFormProps>({
+    resolver: zodResolver(OrderRunFormSchema),
+  });
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const data = new FormData(e.currentTarget);
-
-    // Create a JavaScript object with the form data
-    const jsonData = Object.fromEntries(data.entries());
-
+  const submitForm: SubmitHandler<OrderRunFormProps> = async (
+    data: OrderRunFormProps
+  ) => {
     const response = await fetch(`${API_BASE_URL}/api/createOrder`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(jsonData), // Convert the JavaScript object to a JSON string
+      body: JSON.stringify(data), // Convert the JavaScript object to a JSON string
     })
       .then((res) => res.json())
       .catch((err) => {
@@ -29,7 +35,11 @@ const OrderRunForm = () => {
   };
 
   return (
-    <form className="flex flex-col space-y-4" onSubmit={handleSubmit}>
+    <form
+      className="flex flex-col space-y-4"
+      onSubmit={handleSubmit(submitForm)}
+      autoComplete="off"
+    >
       <h2 className="text-2xl font-bold">Order Run Form</h2>
       <label
         className="text-gray-500 text-sm uppercase font-bold tracking-wider"
@@ -39,10 +49,12 @@ const OrderRunForm = () => {
       </label>
       <input
         className="border p-2"
-        name="name"
         type="text"
         placeholder="Enter your name here"
+        {...register("name")}
       />
+      {errors.name && <p className="text-red-500">{errors.name.message}</p>}
+
       <label
         className="text-gray-500 text-sm uppercase font-bold tracking-wider"
         htmlFor="email"
@@ -51,10 +63,12 @@ const OrderRunForm = () => {
       </label>
       <input
         className="border p-2"
-        name="email"
         type="text"
         placeholder="Enter your email here"
+        {...register("email")}
       />
+      {errors.email && <p className="text-red-500">{errors.email.message}</p>}
+
       <label
         className="text-gray-500 text-sm uppercase font-bold tracking-wider"
         htmlFor="locaiton"
@@ -63,10 +77,14 @@ const OrderRunForm = () => {
       </label>
       <input
         className="border p-2"
-        name="location"
         type="text"
         placeholder="Enter location here"
+        {...register("location")}
       />
+      {errors.location && (
+        <p className="text-red-500">{errors.location.message}</p>
+      )}
+
       <label
         className="text-gray-500 text-sm uppercase font-bold tracking-wider"
         htmlFor="max"
@@ -75,22 +93,11 @@ const OrderRunForm = () => {
       </label>
       <input
         className="border p-2"
-        name="max"
-        type="text"
+        type="number"
         placeholder="Enter maximum order size"
+        {...register("max", { valueAsNumber: true })}
       />
-      <label
-        className="text-gray-500 text-sm uppercase font-bold tracking-wider"
-        htmlFor="time"
-      >
-        Time until leaving (in minutes)
-      </label>
-      <input
-        className="border p-2"
-        name="time"
-        type="text"
-        placeholder="Enter minutes until leaving"
-      />
+
       <button
         className="bg-blue-500 text-white self-start py-2 px-4 rounded"
         type="submit"

@@ -1,28 +1,25 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
+import { useForm, SubmitHandler } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { OrderProps, OrderRunProps, OrderFormSchema } from "../models/schemas";
 import config from "../../config";
 
 const API_BASE_URL = config.api.baseUrl;
 
-interface OrderRun {
-  orderId: string;
-  name: string;
-  email: string;
-  location: string;
-  max: string;
-  time: string;
-  orders: Order[];
-}
-interface Order {
-  name: string;
-  order: string;
-}
-
 const OrderCollect = () => {
   const { orderId } = useParams<{ orderId: string }>();
-  const [ws, setWS] = useState<WebSocket | null>(null);
-  const [orderRun, setOrderRun] = useState<OrderRun | null>(null);
+  const [ws, setWS] = useState<WebSocket>();
+  const [orderRun, setOrderRun] = useState<OrderRunProps>();
   const [maxReached, setMaxReached] = useState(false);
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<OrderProps>({
+    resolver: zodResolver(OrderFormSchema),
+  });
 
   fetch(`${API_BASE_URL}/api/getOrderRun?orderId=${orderId}`, {
     method: "GET",
@@ -33,9 +30,9 @@ const OrderCollect = () => {
     .then((res) => {
       return res.json();
     })
-    .then((data: OrderRun) => {
+    .then((data: OrderProps) => {
       // @ts-expect-error - data is not null
-      if (data[orderId].orders.length >= parseInt(data[orderId].max)) {
+      if (data[orderId].orders.length >= data[orderId].max) {
         setMaxReached(true);
       }
     })
@@ -96,11 +93,12 @@ const OrderCollect = () => {
     };
   }, [orderId]);
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  const submitForm: SubmitHandler<OrderProps> = async (data: OrderProps) => {
     console.log("Submitting order");
-    const data = new FormData(e.currentTarget);
-    const jsonData = Object.fromEntries(data.entries());
+    const jsonData = {
+      ...data,
+      orderId: orderId,
+    };
 
     // Add the orderId to the JSON data
     jsonData.orderId = orderId || "";
@@ -114,7 +112,7 @@ const OrderCollect = () => {
       if (
         currentOrderRun &&
         currentOrderRun.orders &&
-        currentOrderRun.orders.length >= parseInt(currentOrderRun.max)
+        currentOrderRun.orders.length >= currentOrderRun.max
       ) {
         alert("Maximum number of orders reached for this run.");
         setMaxReached(true);
@@ -145,21 +143,33 @@ const OrderCollect = () => {
               {orderRun?.[orderId]?.location}
             </span>
           </h2>
-          <form className="flex flex-col space-y-4" onSubmit={handleSubmit}>
+          <form
+            className="flex flex-col space-y-4"
+            onSubmit={handleSubmit(submitForm)}
+            autoComplete="off"
+          >
             <label htmlFor="name">Name</label>
             <input
               className="border p-2"
-              name="name"
               type="text"
               placeholder="Enter your name here"
+              {...register("name")}
             />
+            {errors.name && (
+              <p className="text-red-500">{errors.name.message}</p>
+            )}
+
             <label htmlFor="order">Order</label>
             <input
               className="border p-2"
-              name="order"
               type="text"
               placeholder="Enter your order here"
+              {...register("order")}
             />
+            {errors.order && (
+              <p className="text-red-500">{errors.order.message}</p>
+            )}
+
             <button
               className="bg-blue-500 text-white self-start py-2 px-4 rounded"
               type="submit"

@@ -11,19 +11,23 @@ import (
 )
 
 type OrderRun struct {
-	OrderId   string  `json:"orderId"`
-	Owner     string  `json:"name"`
-	Email     string  `json:"email"`
-	Location  string  `json:"location"`
-	MaxOrder  string  `json:"max"`
-	TimeLimit string  `json:"time"`
-	Orders    []Order `json:"orders"`
+	OrderId  string  `json:"orderId"`
+	Owner    string  `json:"name"`
+	Email    string  `json:"email"`
+	Location string  `json:"location"`
+	MaxOrder int     `json:"max"`
+	Orders   []Order `json:"orders"`
 }
 
 type Order struct {
 	OrderId string `json:"orderId"`
 	Owner   string `json:"name"`
 	Order   string `json:"order"`
+}
+
+type ConnectionPool struct {
+	clients   map[*websocket.Conn]bool
+	broadcast chan int
 }
 
 // Takes a normal HTTP connection and upgrades it to a WebSocket connection.
@@ -39,7 +43,7 @@ var upgrader = websocket.Upgrader{
 }
 
 // Handles WebSocket connections.
-func handleConnections(w http.ResponseWriter, r *http.Request, clients map[*websocket.Conn]bool, orders map[string]OrderRun) {
+func (pool *ConnectionPool) handleConnections(w http.ResponseWriter, r *http.Request, orders map[string]OrderRun) {
 	// Upgrade initial GET request to a WebSocket
 	ws, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
@@ -50,7 +54,7 @@ func handleConnections(w http.ResponseWriter, r *http.Request, clients map[*webs
 
 	// Close the connection when the function returns
 	defer ws.Close()
-	clients[ws] = true
+	pool.clients[ws] = true
 
 	for {
 		// Read in a new message as JSON and map it to a Message object
@@ -83,9 +87,6 @@ func handleConnections(w http.ResponseWriter, r *http.Request, clients map[*webs
 		// Put the modified OrderRuns object back into the orders map
 		orders[order.OrderId] = orderRuns
 
-		// Log the orders object
-		log.Infof("Orders object: %s", orders)
-
 		// Send the orders object back to the client
 		err = ws.WriteJSON(orders)
 		if err != nil {
@@ -93,13 +94,18 @@ func handleConnections(w http.ResponseWriter, r *http.Request, clients map[*webs
 			break
 		}
 
-		for client := range clients {
-			err := client.WriteJSON(orders)
-			if err != nil {
-				log.Printf("error: %v", err)
-				client.Close()
-				delete(clients, client)
-			}
+		pool.handleBroadcast(orders)
+	}
+}
+
+func (pool *ConnectionPool) handleBroadcast(orders map[string]OrderRun) {
+	// Send it out to every client that is currently connected
+	for client := range pool.clients {
+		err := client.WriteJSON(orders)
+		if err != nil {
+			log.Printf("error: %v", err)
+			client.Close()
+			delete(pool.clients, client)
 		}
 	}
 }
@@ -160,9 +166,6 @@ func handleCreateOrder(w http.ResponseWriter, r *http.Request, orders map[string
 
 	// Send the JSON response back to the client
 	w.Write(jsonResponse)
-
-	// Log the POST request
-	log.Infof("POST request received on /api/createOrder: %s", orders[orderRun.OrderId])
 }
 
 // Handles the GET request to /api/getOrderRun
@@ -188,8 +191,11 @@ func handleGetOrderRun(w http.ResponseWriter, r *http.Request, orders map[string
 }
 
 func main() {
-	// Create a map of WebSocket connections
-	var clients = make(map[*websocket.Conn]bool)
+	// Initialize a new connection pool
+	pool := &ConnectionPool{
+		broadcast: make(chan int),
+		clients:   make(map[*websocket.Conn]bool),
+	}
 
 	// Stores the orders that have been created.
 	var orders = make(map[string]OrderRun)
@@ -199,7 +205,7 @@ func main() {
 
 	// Configure websocket route
 	http.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {
-		handleConnections(w, r, clients, orders)
+		pool.handleConnections(w, r, orders)
 	})
 
 	// Create an API post route that will generate a random string whenever /api/createOrder is called
