@@ -5,7 +5,7 @@ const CLIENT_BASE_URL = config.client.baseUrl;
 
 const OrderRunSubmitted = () => {
   const locationState = useLocation();
-  const { orderId, name, email, location, max, time } = locationState.state;
+  const { orderId, name, email, location, max } = locationState.state;
 
   return (
     <div>
