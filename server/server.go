@@ -178,14 +178,16 @@ func handleCreateOrder(w http.ResponseWriter, r *http.Request, orders map[string
 		return
 	}
 
-	// Generate a random string
-	randomString := generateRandomString()
-
-	// Set the OrderId field of the OrderRuns object to the random string
-	orderRun.OrderId = randomString
-
-	// Store the OrderRuns object in the orders map using the orderID as the key
+	// Assign a unique order id and store the run. Generating the id under the
+	// lock and retrying on the rare chance of a collision keeps two concurrent
+	// requests from being assigned the same id.
 	ordersMu.Lock()
+	for {
+		orderRun.OrderId = generateRandomString()
+		if _, exists := orders[orderRun.OrderId]; !exists {
+			break
+		}
+	}
 	orders[orderRun.OrderId] = orderRun
 	ordersMu.Unlock()
 
