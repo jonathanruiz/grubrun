@@ -5,10 +5,15 @@ import (
 	"math/rand"
 	"net/http"
 	"strings"
+	"sync"
 
 	"github.com/charmbracelet/log"
 	"github.com/gorilla/websocket"
 )
+
+// ordersMu guards the shared orders map, which is accessed concurrently by
+// the HTTP handlers and every WebSocket goroutine.
+var ordersMu sync.RWMutex
 
 type OrderRun struct {
 	OrderId  string  `json:"orderId"`
@@ -27,6 +32,7 @@ type Order struct {
 
 type ConnectionPool struct {
 	clients   map[*websocket.Conn]bool
+	clientsMu sync.Mutex
 	broadcast chan int
 }
 
@@ -54,7 +60,10 @@ func (pool *ConnectionPool) handleConnections(w http.ResponseWriter, r *http.Req
 
 	// Close the connection when the function returns
 	defer ws.Close()
+
+	pool.clientsMu.Lock()
 	pool.clients[ws] = true
+	pool.clientsMu.Unlock()
 
 	for {
 		// Read in a new message as JSON and map it to a Message object
@@ -75,8 +84,10 @@ func (pool *ConnectionPool) handleConnections(w http.ResponseWriter, r *http.Req
 		}
 
 		// Get the orders object from the orders map using the orderId as the key
+		ordersMu.Lock()
 		orderRuns, exists := orders[order.OrderId]
 		if !exists {
+			ordersMu.Unlock()
 			http.Error(w, "Order not found", http.StatusNotFound)
 			return
 		}
@@ -86,9 +97,12 @@ func (pool *ConnectionPool) handleConnections(w http.ResponseWriter, r *http.Req
 
 		// Put the modified OrderRuns object back into the orders map
 		orders[order.OrderId] = orderRuns
+		ordersMu.Unlock()
 
 		// Send the orders object back to the client
+		ordersMu.RLock()
 		err = ws.WriteJSON(orders)
+		ordersMu.RUnlock()
 		if err != nil {
 			log.Warn(err)
 			break
@@ -99,6 +113,12 @@ func (pool *ConnectionPool) handleConnections(w http.ResponseWriter, r *http.Req
 }
 
 func (pool *ConnectionPool) handleBroadcast(orders map[string]OrderRun) {
+	ordersMu.RLock()
+	defer ordersMu.RUnlock()
+
+	pool.clientsMu.Lock()
+	defer pool.clientsMu.Unlock()
+
 	// Send it out to every client that is currently connected
 	for client := range pool.clients {
 		err := client.WriteJSON(orders)
@@ -171,10 +191,12 @@ func handleCreateOrder(w http.ResponseWriter, r *http.Request, orders map[string
 	orderRun.OrderId = randomString
 
 	// Store the OrderRuns object in the orders map using the orderID as the key
+	ordersMu.Lock()
 	orders[orderRun.OrderId] = orderRun
+	ordersMu.Unlock()
 
 	// Marshal the OrderRuns object into a JSON object
-	jsonResponse, err := json.Marshal(orders[orderRun.OrderId])
+	jsonResponse, err := json.Marshal(orderRun)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -193,7 +215,9 @@ func handleGetOrderRun(w http.ResponseWriter, r *http.Request, orders map[string
 	orderId := r.URL.Query().Get("orderId")
 
 	// Marshal the OrderRuns object into a JSON object
+	ordersMu.RLock()
 	jsonResponse, err := json.Marshal(orders)
+	ordersMu.RUnlock()
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
