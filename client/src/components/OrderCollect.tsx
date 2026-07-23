@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useParams } from "react-router";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -9,9 +9,8 @@ const API_BASE_URL = config.api.baseUrl;
 
 const OrderCollect = () => {
   const { orderId } = useParams<{ orderId: string }>();
-  const [ws, setWS] = useState<WebSocket>();
+  const wsRef = useRef<WebSocket>(undefined);
   const [orderRun, setOrderRun] = useState<OrderRunProps>();
-  const [maxReached, setMaxReached] = useState(false);
 
   const {
     register,
@@ -21,17 +20,13 @@ const OrderCollect = () => {
     resolver: zodResolver(OrderFormSchema),
   });
 
-  // Derive maxReached from the order run we already have in state. This runs
-  // whenever the run changes (initial fetch or a WebSocket update) instead of
-  // firing a fetch on every render.
-  useEffect(() => {
-    // @ts-expect-error - orderRun is not null
-    const run = orderId ? orderRun?.[orderId] : undefined;
-    // orders can be null for a run with no orders yet, so guard the access.
-    if (run && (run.orders?.length ?? 0) >= run.max) {
-      setMaxReached(true);
-    }
-  }, [orderRun, orderId]);
+  // Derive maxReached from the order run we already have in state, during
+  // render, so it stays in sync with the run (initial fetch or a WebSocket
+  // update) without a state-setting effect.
+  // @ts-expect-error - orderRun is not null
+  const run = orderId ? orderRun?.[orderId] : undefined;
+  // orders can be null for a run with no orders yet, so guard the access.
+  const maxReached = !!run && (run.orders?.length ?? 0) >= run.max;
 
   useEffect(() => {
     const websocket = new WebSocket("ws://localhost:8000/ws");
@@ -78,7 +73,7 @@ const OrderCollect = () => {
       console.log("WebSocket error:", error);
     };
 
-    setWS(websocket);
+    wsRef.current = websocket;
 
     return () => {
       console.log("Closing WebSocket connection");
@@ -108,7 +103,6 @@ const OrderCollect = () => {
         currentOrderRun.orders.length >= currentOrderRun.max
       ) {
         alert("Maximum number of orders reached for this run.");
-        setMaxReached(true);
         return;
       }
     } else {
@@ -116,10 +110,16 @@ const OrderCollect = () => {
       return;
     }
 
-    if (ws) {
-      ws.send(JSON.stringify(jsonData));
+    if (wsRef.current) {
+      wsRef.current.send(JSON.stringify(jsonData));
     }
   };
+
+  // submitForm reads wsRef.current, but only when invoked by react-hook-form
+  // at submit time (an event), never during render — so the ref read is safe
+  // here despite react-hooks/refs flagging the ref passing through handleSubmit.
+  // eslint-disable-next-line react-hooks/refs
+  const onSubmit = handleSubmit(submitForm);
 
   return (
     <>
@@ -138,7 +138,7 @@ const OrderCollect = () => {
           </h2>
           <form
             className="flex flex-col space-y-4"
-            onSubmit={handleSubmit(submitForm)}
+            onSubmit={onSubmit}
             autoComplete="off"
           >
             <label htmlFor="name">Name</label>
