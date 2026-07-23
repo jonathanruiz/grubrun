@@ -21,24 +21,16 @@ const OrderCollect = () => {
     resolver: zodResolver(OrderFormSchema),
   });
 
-  fetch(`${API_BASE_URL}/api/getOrderRun?orderId=${orderId}`, {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-    },
-  })
-    .then((res) => {
-      return res.json();
-    })
-    .then((data: OrderProps) => {
-      // @ts-expect-error - data is not null
-      if (data[orderId].orders.length >= data[orderId].max) {
-        setMaxReached(true);
-      }
-    })
-    .catch((err) => {
-      console.error("Error was thrown:", err);
-    });
+  // Derive maxReached from the order run we already have in state. This runs
+  // whenever the run changes (initial fetch or a WebSocket update) instead of
+  // firing a fetch on every render.
+  useEffect(() => {
+    // @ts-expect-error - orderRun is not null
+    const run = orderId ? orderRun?.[orderId] : undefined;
+    if (run && run.orders.length >= run.max) {
+      setMaxReached(true);
+    }
+  }, [orderRun, orderId]);
 
   useEffect(() => {
     const websocket = new WebSocket("ws://localhost:8000/ws");
