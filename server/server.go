@@ -207,10 +207,19 @@ func handleGetOrderRun(w http.ResponseWriter, r *http.Request, orders map[string
 	// Get the orderId from the query string
 	orderId := r.URL.Query().Get("orderId")
 
-	// Marshal the OrderRuns object into a JSON object
+	// Look up only the requested order run rather than returning the entire
+	// orders map.
 	ordersMu.RLock()
-	jsonResponse, err := json.Marshal(orders)
+	orderRun, exists := orders[orderId]
 	ordersMu.RUnlock()
+	if !exists {
+		http.Error(w, "Order not found", http.StatusNotFound)
+		return
+	}
+
+	// Marshal the order into a map keyed by orderId, which is the shape the
+	// client expects (it indexes the response as data[orderId]).
+	jsonResponse, err := json.Marshal(map[string]OrderRun{orderId: orderRun})
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
