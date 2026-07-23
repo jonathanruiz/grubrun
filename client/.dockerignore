@@ -1,0 +1,15 @@
+# Dependencies and build output
+node_modules
+dist
+
+# Docker files (keep docker/nginx.conf — the build copies it in)
+docker/Dockerfile
+.dockerignore
+
+# Tests
+tests
+
+# VCS / OS cruft
+.git
+.gitignore
+.DS_Store
