@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams } from "react-router";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { OrderProps, OrderRunProps, OrderFormSchema } from "../models/schemas";
@@ -21,24 +21,17 @@ const OrderCollect = () => {
     resolver: zodResolver(OrderFormSchema),
   });
 
-  fetch(`${API_BASE_URL}/api/getOrderRun?orderId=${orderId}`, {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-    },
-  })
-    .then((res) => {
-      return res.json();
-    })
-    .then((data: OrderProps) => {
-      // @ts-expect-error - data is not null
-      if (data[orderId].orders.length >= data[orderId].max) {
-        setMaxReached(true);
-      }
-    })
-    .catch((err) => {
-      console.error("Error was thrown:", err);
-    });
+  // Derive maxReached from the order run we already have in state. This runs
+  // whenever the run changes (initial fetch or a WebSocket update) instead of
+  // firing a fetch on every render.
+  useEffect(() => {
+    // @ts-expect-error - orderRun is not null
+    const run = orderId ? orderRun?.[orderId] : undefined;
+    // orders can be null for a run with no orders yet, so guard the access.
+    if (run && (run.orders?.length ?? 0) >= run.max) {
+      setMaxReached(true);
+    }
+  }, [orderRun, orderId]);
 
   useEffect(() => {
     const websocket = new WebSocket("ws://localhost:8000/ws");
