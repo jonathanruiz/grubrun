@@ -124,18 +124,18 @@ func (pool *ConnectionPool) handleBroadcast(orders map[string]OrderRun) {
 	}
 }
 
-// Generates a random string of 5 characters, inlcuding uppercase letters and numbers.
-func generateRandomString() string {
-	// Create a slice of characters that will be used to generate the random string
-	characters := []rune("ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789")
+// orderIDChars is the set of characters used to build a random order id.
+const orderIDChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 
+// Generates a random string of 5 characters, including uppercase letters and numbers.
+func generateRandomString() string {
 	// Create a string builder that will be used to build the random string
 	var sb strings.Builder
+	sb.Grow(5)
 
-	// Loop 5 times and each time generate a random character from the characters slice and add it to the string builder
+	// Loop 5 times and each time append a random character from orderIDChars.
 	for i := 0; i < 5; i++ {
-		randomIndex := rand.Intn(len(characters))
-		sb.WriteRune(characters[randomIndex])
+		sb.WriteByte(orderIDChars[rand.Intn(len(orderIDChars))])
 	}
 
 	// Return the string builder as a string
