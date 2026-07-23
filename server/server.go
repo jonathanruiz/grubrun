@@ -99,15 +99,8 @@ func (pool *ConnectionPool) handleConnections(w http.ResponseWriter, r *http.Req
 		orders[order.OrderId] = orderRuns
 		ordersMu.Unlock()
 
-		// Send the orders object back to the client
-		ordersMu.RLock()
-		err = ws.WriteJSON(orders)
-		ordersMu.RUnlock()
-		if err != nil {
-			log.Warn(err)
-			break
-		}
-
+		// Broadcast the updated orders to every connected client. This
+		// includes the sender, so there is no need to write to ws separately.
 		pool.handleBroadcast(orders)
 	}
 }
