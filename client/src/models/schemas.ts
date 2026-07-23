@@ -22,7 +22,7 @@ export interface OrderProps {
 
 export const OrderRunFormSchema = z.object({
   name: z.string(),
-  email: z.string().email(),
+  email: z.email(),
   location: z.string(),
   max: z.number(),
 });
