@@ -27,7 +27,8 @@ const OrderCollect = () => {
   useEffect(() => {
     // @ts-expect-error - orderRun is not null
     const run = orderId ? orderRun?.[orderId] : undefined;
-    if (run && run.orders.length >= run.max) {
+    // orders can be null for a run with no orders yet, so guard the access.
+    if (run && (run.orders?.length ?? 0) >= run.max) {
       setMaxReached(true);
     }
   }, [orderRun, orderId]);
