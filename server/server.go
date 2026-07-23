@@ -33,7 +33,6 @@ type Order struct {
 type ConnectionPool struct {
 	clients   map[*websocket.Conn]bool
 	clientsMu sync.Mutex
-	broadcast chan int
 }
 
 // Takes a normal HTTP connection and upgrades it to a WebSocket connection.
@@ -240,8 +239,7 @@ func handleGetOrderRun(w http.ResponseWriter, r *http.Request, orders map[string
 func main() {
 	// Initialize a new connection pool
 	pool := &ConnectionPool{
-		broadcast: make(chan int),
-		clients:   make(map[*websocket.Conn]bool),
+		clients: make(map[*websocket.Conn]bool),
 	}
 
 	// Stores the orders that have been created.
