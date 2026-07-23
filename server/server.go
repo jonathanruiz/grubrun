@@ -178,6 +178,12 @@ func handleCreateOrder(w http.ResponseWriter, r *http.Request, orders map[string
 		return
 	}
 
+	// Ensure Orders is a non-nil slice so it serializes as [] rather than null
+	// for a run that has no orders yet.
+	if orderRun.Orders == nil {
+		orderRun.Orders = []Order{}
+	}
+
 	// Assign a unique order id and store the run. Generating the id under the
 	// lock and retrying on the rare chance of a collision keeps two concurrent
 	// requests from being assigned the same id.
