@@ -53,7 +53,9 @@ func (pool *ConnectionPool) handleConnections(w http.ResponseWriter, r *http.Req
 	// Upgrade initial GET request to a WebSocket
 	ws, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
+		// The upgrade failed, so ws is nil; bail out before using it.
 		log.Error(err)
+		return
 	}
 
 	log.Info("New WebSocket connection established")
