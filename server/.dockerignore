@@ -1,0 +1,18 @@
+# Prebuilt local binary
+
+grubrun
+
+# Docker files
+
+docker
+.dockerignore
+
+# Tests (not needed to build the binary)
+
+tests
+
+# Git files
+
+.git
+.gitignore
+.DS_Store
