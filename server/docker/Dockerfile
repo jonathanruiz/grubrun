@@ -19,7 +19,8 @@ RUN --mount=type=cache,target=/go/pkg/mod \
     CGO_ENABLED=0 GOOS=linux go build -o /out/grubrun .
 
 # ---- Run stage ----
-FROM golang:1.25-alpine AS run
+# Minimal base with a shell for debugging (docker exec ... sh).
+FROM alpine:3.20 AS run
 
 WORKDIR /app
 
