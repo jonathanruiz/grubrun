@@ -1,11 +1,12 @@
 import { useLocation } from "react-router";
-import config from "../../config";
-
-const CLIENT_BASE_URL = config.client.baseUrl;
 
 const OrderRunSubmitted = () => {
   const locationState = useLocation();
   const { orderId, name, email, location, max } = locationState.state;
+
+  // Build the shareable link from the app's own origin so it reflects whatever
+  // host/port the client is actually served on (dev, Docker, prod).
+  const orderRunUrl = `${window.location.origin}/order/${orderId}`;
 
   return (
     <div>
@@ -20,10 +21,9 @@ const OrderRunSubmitted = () => {
         </div>
         <div className="border-blue-500 border-2 p-4 flex justify-center items-center rounded-b-lg">
           <p>
-            <a
-              href={`${CLIENT_BASE_URL}/order/${orderId}`}
-              className="text-blue-500 underline"
-            >{`${CLIENT_BASE_URL}/order/${orderId}`}</a>
+            <a href={orderRunUrl} className="text-blue-500 underline">
+              {orderRunUrl}
+            </a>
           </p>
         </div>
       </div>
